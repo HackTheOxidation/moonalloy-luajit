@@ -1,0 +1,101 @@
+use std::fmt::*;
+
+#[repr(C)]
+pub struct Array {
+    pub len: i32,
+    pub arr: Vec<f64>,
+}
+
+impl Array {
+    pub fn new() -> Array {
+        Array {
+            len: 0,
+            arr: Vec::new(),
+        }
+    }
+
+    pub fn from(len: i32, arr: Vec<f64>) -> Array {
+        Array { len, arr }
+    }
+    
+    pub fn sum(&self) -> f64 {
+        let mut s: f64 = 0.0;
+        for i in 0..self.len as usize {
+            s += self.arr[i];
+        }
+        s
+    }
+
+    pub fn add(&self, other: &Array) -> Array {
+        if self.len != other.len {
+            panic!("Lengths are different!");
+        }
+
+        let mut vector = Vec::new();
+
+        for i in 0..self.len as usize {
+            vector.push(self.arr[i] + other.arr[i]);
+        }
+
+        Array::from(vector.len() as i32, vector)
+    }
+
+    pub fn to_raw(arr: Array) -> *mut Array {
+        Box::into_raw(Box::new(arr))
+    }
+}
+
+impl std::fmt::Display for Array {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        let mut temp = Vec::new();
+        for num in 0..self.len as usize {
+            temp.push(self.arr[num]);
+        }
+        write!(f, "Array: len = {}, arr = {:?}", self.len, temp) 
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn sum(ptr: *mut Array) -> f64 {
+    let arr = unsafe {
+        assert!(!ptr.is_null());
+        &mut *ptr
+    };
+    arr.sum()
+}
+
+#[no_mangle]
+pub extern "C" fn print(ptr: *mut Array) {
+    let arr = unsafe {
+        assert!(!ptr.is_null());
+        &mut *ptr
+    };
+    //arr.arr.truncate(arr.len as usize);
+    println!("{}", arr);
+}
+
+#[no_mangle]
+pub extern "C" fn array_new() -> *mut Array {
+    Box::into_raw(Box::new(Array::new()))
+}
+
+#[no_mangle]
+pub extern "C" fn add(ptr1: *mut Array, ptr2: *mut Array) -> *const Array {
+    let arr1 = unsafe {
+        assert!(!ptr1.is_null());
+        &mut *ptr1
+    };
+
+    let arr2 = unsafe {
+        assert!(!ptr2.is_null());
+        &mut *ptr2
+    };
+
+    //arr1.arr.truncate(arr1.len as usize);
+    //arr2.arr.truncate(arr2.len as usize);
+
+    let result = arr1.add(&arr2);
+    println!("{}", result);
+
+    Array::to_raw(result)
+}
