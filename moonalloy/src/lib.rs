@@ -40,6 +40,25 @@ impl Array {
         Array::from(vector.len() as i32, vector)
     }
 
+    pub fn mult(&self, other: &Array) -> Array {
+        if self.len != other.len {
+            panic!("Lengths are different!");
+        }
+
+        let mut vector = Vec::new();
+
+        for i in 0..self.len as usize {
+            vector.push(self.arr[i] * other.arr[i]);
+        }
+
+        Array::from(vector.len() as i32, vector)
+    }
+
+    pub fn dotp(&self, other: &Array) -> f64 {
+        let arr = self.add(other);
+        arr.arr.iter().sum()
+    }
+
     pub fn to_raw(arr: Array) -> *mut Array {
         Box::into_raw(Box::new(arr))
     }
@@ -79,7 +98,7 @@ pub extern "C" fn array_new() -> *mut Array {
 }
 
 #[no_mangle]
-pub extern "C" fn add(ptr1: *mut Array, ptr2: *mut Array) -> *const Array {
+pub extern "C" fn add(ptr1: *mut Array, ptr2: *mut Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
         &mut *ptr1
@@ -93,4 +112,36 @@ pub extern "C" fn add(ptr1: *mut Array, ptr2: *mut Array) -> *const Array {
     let result = arr1.add(&arr2);
 
     Array::to_raw(result)
+}
+
+#[no_mangle]
+pub extern "C" fn mult(ptr1: *mut Array, ptr2: *mut Array) -> *mut Array {
+    let arr1 = unsafe {
+        assert!(!ptr1.is_null());
+        &mut *ptr1
+    };
+
+    let arr2 = unsafe {
+        assert!(!ptr2.is_null());
+        &mut *ptr2
+    };
+
+    let result = arr1.mult(&arr2);
+
+    Array::to_raw(result)
+}
+
+#[no_mangle]
+pub extern "C" fn dotp(ptr1: *mut Array, ptr2: *mut Array) -> f64 {
+    let arr1 = unsafe {
+        assert!(!ptr1.is_null());
+        &mut *ptr1
+    };
+
+    let arr2 = unsafe {
+        assert!(!ptr2.is_null());
+        &mut *ptr2
+    };
+
+    arr1.dotp(&arr2)
 }

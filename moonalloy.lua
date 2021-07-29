@@ -7,9 +7,13 @@ typedef struct {
   double *arr;
 } array_t;
 
-double sum(const array_t *arr);
-const array_t* add(const array_t *arr1, const array_t *arr2);
-void print(const array_t *arr1);
+void print(array_t *arr1);
+
+double sum(array_t *arr);
+array_t* add(array_t *arr1, array_t *arr2);
+array_t* mult(array_t *arr1, array_t *arr2);
+double dotp(array_t *arr1, array_t *arr2);
+
 ]]
 
 rust_lib = ffi.load("./moonalloy/target/debug/libmoonalloy.so")
@@ -32,7 +36,10 @@ print(rust_lib.sum(ar))
 local result = ar + ar2
 rust_lib.print(result)
 
-local another = result + ar
+local another = rust_lib.mult(result, ar)
 rust_lib.print(another)
+
+local dot = rust_lib.dotp(ar2, another)
+print(dot)
 
 print("Success!")
