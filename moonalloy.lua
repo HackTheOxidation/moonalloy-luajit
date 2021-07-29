@@ -1,5 +1,8 @@
 local moonalloy = {{}}
 
+-- Array Wrapper class
+Array = {array = nil, len = 0}
+
 -- Load the FFI module
 local ffi = require("ffi")
 
@@ -11,13 +14,13 @@ typedef struct {
   double *arr;
 } array_t;
 
-void print(array_t *arr1);
+void print(const array_t *arr1);
 
 double sum(array_t *arr);
-array_t* add(array_t *arr1, array_t *arr2);
-array_t* sub(array_t *arr1, array_t *arr2);
-array_t* mult(array_t *arr1, array_t *arr2);
-double dotp(array_t *arr1, array_t *arr2);
+array_t* add(const array_t *arr1, const array_t *arr2);
+array_t* sub(const array_t *arr1, const array_t *arr2);
+array_t* mult(const array_t *arr1, const array_t *arr2);
+double dotp(const array_t *arr1, const array_t *arr2);
 
 ]]
 
@@ -44,37 +47,92 @@ function new_array(t)
   return new
 end
 
--- Create a table and format its length
+-- Create a new Array Wrapper Object
+function Array:new(aTable)
+  setmetatable({}, Array)
+
+  self.array = new_array(aTable)
+  self.len = #aTable
+
+  return self
+end
+
+-- print() method for Array Wrapper
+function Array:print()
+  rust_lib.print(self.array)
+end
+
+function Array:from(array, len)
+
+  self.array = array
+  self.len = len
+
+  return self
+end
+
+function Array:add(other)
+  local array = Array:from(self.array + other.array, self.len)
+  return array
+end
+
+function Array:sub(other)
+  local array = Array:from(self.array - other.array, self.len)
+  return array
+end
+
+function Array:sum()
+  return rust_lib.sum(self.array)
+end
+
+function Array:size()
+  return #self.array
+end
+
+function Array:mult(other)
+  local array = Array:from(self.array * other.array, self.len)
+  return array
+end
+
+function Array:dotp(other)
+  return rust_lib.dotp(self.array, self.array)
+end
+
+-- Create a table
 local arg = {1.0, 2.0, 3.0}
-local len = "double[" .. #arg .. "]"
 
--- Create two Array metatypes and test the sum() function
-local ar = arr(#arg, ffi.new(len, arg))
-rust_lib.print(ar)
-local ar2 = new_array({2.0, 3.0, 5.0})
-print(rust_lib.sum(ar))
+local a = Array:new(arg)
+print("a = ")
+a:print()
 
--- Tests the len function
-print(#ar)
+local a2 = Array:new({2.0, 3.0, 5.0})
+print("a2 = ")
+a2:print()
 
--- Test the + operator and the underlying add() function
-local result = ar + ar2
-rust_lib.print(result)
+local pure_add = a.array + a2.array
+print("pure_add = ")
+rust_lib.print(pure_add)
 
-local ar3 = new_array({2.3, 5.1, 8.2})
-rust_lib.print(ar3)
+print("After pure: a = ")
+a:print()
+print("After pure: a2 = ")
+a2:print()
 
--- Test the - operator and the underlying sub() function
-local sub = ar - ar2
-rust_lib.print(sub)
+local added = a:add(a2)
+print("added = ")
+added:print()
 
--- Test the * operator and the underlying mult() function
-local another = result * ar
-rust_lib.print(another)
+print("After add: a = ")
+a:print()
+print("After add: a2 = ")
+a2:print()
 
--- Test the dotp() function
-local dot = rust_lib.dotp(ar2, another)
-print(dot)
+local multed = a:mult(a2)
+print("multed = ")
+multed:print()
+
+print("a:size() = ", a:size())
+
+print("a:sum() = ", a:sum())
 
 -- For debugging
 print("Success!")

@@ -112,67 +112,67 @@ pub extern "C" fn array_new() -> *mut Array {
 }
 
 #[no_mangle]
-pub extern "C" fn add(ptr1: *mut Array, ptr2: *mut Array) -> *mut Array {
+pub extern "C" fn add(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
-        &mut *ptr1
+        &*ptr1
     };
 
     let arr2 = unsafe {
         assert!(!ptr2.is_null());
-        &mut *ptr2
+        &*ptr2
     };
 
-    let result = arr1.add(&arr2);
+    let result = arr1.add(arr2);
 
     Array::to_raw(result)
 }
 
 #[no_mangle]
-pub extern "C" fn sub(ptr1: *mut Array, ptr2: *mut Array) -> *mut Array {
+pub extern "C" fn sub(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
-        &mut *ptr1
+        &*ptr1
     };
 
     let arr2 = unsafe {
         assert!(!ptr2.is_null());
-        &mut *ptr2
+        &*ptr2
     };
 
-    let result = arr1.sub(&arr2);
+    let result = arr1.sub(arr2);
 
     Array::to_raw(result)
 }
 
 #[no_mangle]
-pub extern "C" fn mult(ptr1: *mut Array, ptr2: *mut Array) -> *mut Array {
+pub extern "C" fn mult(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
-        &mut *ptr1
+        &*ptr1
     };
 
     let arr2 = unsafe {
         assert!(!ptr2.is_null());
-        &mut *ptr2
+        &*ptr2
     };
 
-    let result = arr1.mult(&arr2);
+    let result = arr1.mult(arr2);
 
     Array::to_raw(result)
 }
 
 #[no_mangle]
-pub extern "C" fn dotp(ptr1: *mut Array, ptr2: *mut Array) -> f64 {
+pub extern "C" fn dotp(ptr1: *const Array, ptr2: *const Array) -> f64 {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
-        &mut *ptr1
+        &*ptr1
     };
 
     let arr2 = unsafe {
         assert!(!ptr2.is_null());
-        &mut *ptr2
+        &*ptr2
     };
 
-    arr1.dotp(&arr2)
+    arr1.dotp(arr2)
 }
