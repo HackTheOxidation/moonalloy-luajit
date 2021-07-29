@@ -70,7 +70,6 @@ pub extern "C" fn print(ptr: *mut Array) {
         assert!(!ptr.is_null());
         &mut *ptr
     };
-    //arr.arr.truncate(arr.len as usize);
     println!("{}", arr);
 }
 
@@ -91,11 +90,7 @@ pub extern "C" fn add(ptr1: *mut Array, ptr2: *mut Array) -> *const Array {
         &mut *ptr2
     };
 
-    //arr1.arr.truncate(arr1.len as usize);
-    //arr2.arr.truncate(arr2.len as usize);
-
     let result = arr1.add(&arr2);
-    println!("{}", result);
 
     Array::to_raw(result)
 }

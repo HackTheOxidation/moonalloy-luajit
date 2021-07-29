@@ -24,10 +24,15 @@ local mt = {
 arr = ffi.metatype("array_t", mt)
 
 local arg = {1.0, 2.0, 3.0}
+--local len = "double[" .. len(arg) .. "]"
 local ar = arr(3, ffi.new("double[3]", arg))
 local ar2 = arr(3, ffi.new("double[3]", arg))
 print(rust_lib.sum(ar))
-rust_lib.print(ar)
+
 local result = ar + ar2
- rust_lib.print(result)
+rust_lib.print(result)
+
+local another = result + ar
+rust_lib.print(another)
+
 print("Success!")
