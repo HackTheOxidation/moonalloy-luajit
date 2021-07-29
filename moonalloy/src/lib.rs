@@ -40,6 +40,20 @@ impl Array {
         Array::from(vector.len() as i32, vector)
     }
 
+    pub fn sub(&self, other: &Array) -> Array {
+        if self.len != other.len {
+            panic!("Lengths are different!");
+        }
+
+        let mut vector = Vec::new();
+
+        for i in 0..self.len as usize {
+            vector.push(self.arr[i] - other.arr[i]);
+        }
+
+        Array::from(vector.len() as i32, vector)
+    }
+
     pub fn mult(&self, other: &Array) -> Array {
         if self.len != other.len {
             panic!("Lengths are different!");
@@ -110,6 +124,23 @@ pub extern "C" fn add(ptr1: *mut Array, ptr2: *mut Array) -> *mut Array {
     };
 
     let result = arr1.add(&arr2);
+
+    Array::to_raw(result)
+}
+
+#[no_mangle]
+pub extern "C" fn sub(ptr1: *mut Array, ptr2: *mut Array) -> *mut Array {
+    let arr1 = unsafe {
+        assert!(!ptr1.is_null());
+        &mut *ptr1
+    };
+
+    let arr2 = unsafe {
+        assert!(!ptr2.is_null());
+        &mut *ptr2
+    };
+
+    let result = arr1.sub(&arr2);
 
     Array::to_raw(result)
 }
