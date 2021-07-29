@@ -28,9 +28,9 @@ local mt = {
 arr = ffi.metatype("array_t", mt)
 
 local arg = {1.0, 2.0, 3.0}
---local len = "double[" .. len(arg) .. "]"
-local ar = arr(3, ffi.new("double[3]", arg))
-local ar2 = arr(3, ffi.new("double[3]", arg))
+local len = "double[" .. #arg .. "]"
+local ar = arr(3, ffi.new(len, arg))
+local ar2 = arr(3, ffi.new(len, arg))
 print(rust_lib.sum(ar))
 
 local result = ar + ar2
