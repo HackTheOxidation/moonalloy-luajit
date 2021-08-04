@@ -51,8 +51,8 @@ end
 function Array:new(aTable)
   setmetatable({}, Array)
 
-  self.array = new_array(aTable)
   self.len = #aTable
+  self.array = new_array(aTable)
 
   return self
 end
@@ -109,7 +109,7 @@ print("a2 = ")
 rust_lib.print(a2)
 
 print("added = ")
-local added = rust_lib.add(a, a2)
+local added = a + a2
 rust_lib.print(added)
 
 print("a = ")
@@ -117,22 +117,17 @@ rust_lib.print(a)
 print("a2 = ")
 rust_lib.print(a2)
 
---[[
-added:print()
-
-print("After add: a = ")
-a:print()
-print("After add: a2 = ")
-a2:print()
-
-local multed = a:mult(a2)
+local multed = a * a2
 print("multed = ")
-multed:print()
+rust_lib.print(multed)
 
-print("a:size() = ", a:size())
+print("a:size() = ", #a)
 
-print("a:sum() = ", a:sum())
-]]
+print("a:sum() = ", rust_lib.sum(a))
+
+print("a = ")
+rust_lib.print(a)
+
 -- For debugging
 print("Success!")
 

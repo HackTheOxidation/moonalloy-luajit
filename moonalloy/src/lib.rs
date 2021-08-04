@@ -26,6 +26,7 @@ impl Array {
         for i in 0..self.len as usize {
             s += v[i];
         }
+        mem::forget(v);
         s
     }
 
