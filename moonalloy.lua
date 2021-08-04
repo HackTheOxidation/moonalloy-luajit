@@ -71,7 +71,7 @@ function Array:from(array, len)
 end
 
 function Array:add(other)
-  local array = Array:from(self.array + other.array, self.len)
+  local array = Array:from(rust_lib.add(self.array, other.array), self.len)
   return array
 end
 
@@ -100,25 +100,24 @@ end
 -- Create a table
 local arg = {1.0, 2.0, 3.0}
 
-local a = Array:new(arg)
+local a = new_array(arg)
 print("a = ")
-a:print()
+rust_lib.print(a)
 
-local a2 = Array:new({2.0, 3.0, 5.0})
+local a2 = new_array({2.0, 3.0, 5.0})
 print("a2 = ")
-a2:print()
+rust_lib.print(a2)
 
-local pure_add = a.array + a2.array
-print("pure_add = ")
-rust_lib.print(pure_add)
-
-print("After pure: a = ")
-a:print()
-print("After pure: a2 = ")
-a2:print()
-
-local added = a:add(a2)
 print("added = ")
+local added = rust_lib.add(a, a2)
+rust_lib.print(added)
+
+print("a = ")
+rust_lib.print(a)
+print("a2 = ")
+rust_lib.print(a2)
+
+--[[
 added:print()
 
 print("After add: a = ")
@@ -133,9 +132,10 @@ multed:print()
 print("a:size() = ", a:size())
 
 print("a:sum() = ", a:sum())
-
+]]
 -- For debugging
 print("Success!")
+
 
 -- Return moonalloy to create the module (can now be used with "require")
 return moonalloy

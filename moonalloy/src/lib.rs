@@ -1,27 +1,35 @@
 use std::fmt::*;
+use std::mem;
 
 #[repr(C)]
 pub struct Array {
     pub len: i32,
-    pub arr: Vec<f64>,
+    pub arr: *mut f64,
 }
 
 impl Array {
     pub fn new() -> Array {
+        let mut v: Vec<f64> = Vec::with_capacity(0);
         Array {
             len: 0,
-            arr: Vec::new(),
+            arr: v.as_mut_ptr(),
         }
     }
 
-    pub fn from(len: i32, arr: Vec<f64>) -> Array {
-        Array { len, arr }
+    pub fn from(len: i32, mut arr: Vec<f64>) -> Array {
+        let result = Array { len, arr: arr.as_mut_ptr() };
+        println!("In Rust - Result = {}", result);
+        result
     }
     
     pub fn sum(&self) -> f64 {
         let mut s: f64 = 0.0;
+        let v = unsafe {
+            vec_from_raw(self.arr, self.len as usize)
+        };
+
         for i in 0..self.len as usize {
-            s += self.arr[i];
+            s += v[i];
         }
         s
     }
@@ -31,13 +39,24 @@ impl Array {
             panic!("Lengths are different!");
         }
 
-        let mut vector = Vec::new();
+        let mut result = Vec::new();
+
+        let arr1 = unsafe {
+            vec_from_raw(self.arr, self.len as usize)
+        };
+
+        let arr2 = unsafe {
+            vec_from_raw(other.arr, other.len as usize)
+        };
 
         for i in 0..self.len as usize {
-            vector.push(self.arr[i] + other.arr[i]);
+            result.push(arr1[i] + arr2[i]);
         }
 
-        Array::from(vector.len() as i32, vector)
+        mem::forget(arr1);
+        mem::forget(arr2);
+
+        Array::from(result.len() as i32, result)
     }
 
     pub fn sub(&self, other: &Array) -> Array {
@@ -45,13 +64,24 @@ impl Array {
             panic!("Lengths are different!");
         }
 
-        let mut vector = Vec::new();
+        let mut result = Vec::new();
+
+        let arr1 = unsafe {
+            vec_from_raw(self.arr, self.len as usize)
+        };
+
+        let arr2 = unsafe {
+            vec_from_raw(other.arr, other.len as usize)
+        };
 
         for i in 0..self.len as usize {
-            vector.push(self.arr[i] - other.arr[i]);
+            result.push(arr1[i] - arr2[i]);
         }
 
-        Array::from(vector.len() as i32, vector)
+        mem::forget(arr1);
+        mem::forget(arr2);
+
+        Array::from(result.len() as i32, result)
     }
 
     pub fn mult(&self, other: &Array) -> Array {
@@ -59,18 +89,33 @@ impl Array {
             panic!("Lengths are different!");
         }
 
-        let mut vector = Vec::new();
+        let mut result = Vec::new();
+
+        let arr1 = unsafe {
+            vec_from_raw(self.arr, self.len as usize)
+        };
+
+        let arr2 = unsafe {
+            vec_from_raw(other.arr, other.len as usize)
+        };
 
         for i in 0..self.len as usize {
-            vector.push(self.arr[i] * other.arr[i]);
+            result.push(arr1[i] * arr2[i]);
         }
 
-        Array::from(vector.len() as i32, vector)
+        mem::forget(arr1);
+        mem::forget(arr2);
+
+        Array::from(result.len() as i32, result)
     }
 
     pub fn dotp(&self, other: &Array) -> f64 {
         let arr = self.add(other);
-        arr.arr.iter().sum()
+        let v = unsafe {
+            vec_from_raw(arr.arr, arr.len as usize)
+        };
+        mem::forget(arr);
+        v.iter().sum()
     }
 
     pub fn to_raw(arr: Array) -> *mut Array {
@@ -78,13 +123,21 @@ impl Array {
     }
 }
 
+unsafe fn vec_from_raw(arr: *mut f64, len: usize) -> Vec<f64> {
+    let mut result = Vec::from_raw_parts(arr, len, len);
+    result.resize(len, 0.0);
+    result
+}
+
 impl std::fmt::Display for Array {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let mut temp = Vec::new();
-        for num in 0..self.len as usize {
-            temp.push(self.arr[num]);
-        }
-        write!(f, "Array: len = {}, arr = {:?}", self.len, temp) 
+        let temp = unsafe {
+            vec_from_raw(self.arr, self.len as usize)
+        };
+
+        let result = write!(f, "Array: len = {}, arr = {:?}", self.len, temp);
+        mem::forget(temp);
+        result
     }
 }
 
@@ -123,9 +176,13 @@ pub extern "C" fn add(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
         &*ptr2
     };
 
+    Array::to_raw(arr1.add(arr2))
+    /*
     let result = arr1.add(arr2);
+    let mut boxed = Box::new(result);
 
-    Array::to_raw(result)
+    &mut *boxed
+    */
 }
 
 #[no_mangle]
