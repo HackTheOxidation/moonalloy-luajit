@@ -1,5 +1,6 @@
 use std::fmt::*;
 use std::mem;
+use std::alloc::{alloc, Layout};
 
 #[repr(C)]
 pub struct Array {
@@ -14,12 +15,6 @@ impl Array {
             len: 0,
             arr: v.as_mut_ptr(),
         }
-    }
-
-    pub fn from(len: i32, mut arr: Vec<f64>) -> Array {
-        let result = Array { len, arr: arr.as_mut_ptr() };
-        println!("In Rust - Result = {}", result);
-        result
     }
     
     pub fn sum(&self) -> f64 {
@@ -39,7 +34,11 @@ impl Array {
             panic!("Lengths are different!");
         }
 
-        let mut result = Vec::new();
+        let result = unsafe {
+            let layout = Layout::new::<f64>();
+            let ptr = alloc(layout);
+            std::slice::from_raw_parts_mut(ptr as *mut f64, self.len as usize)
+        };
 
         let arr1 = unsafe {
             vec_from_raw(self.arr, self.len as usize)
@@ -50,13 +49,13 @@ impl Array {
         };
 
         for i in 0..self.len as usize {
-            result.push(arr1[i] + arr2[i]);
+            result[i] = arr1[i] + arr2[i];
         }
 
         mem::forget(arr1);
         mem::forget(arr2);
 
-        Array::from(result.len() as i32, result)
+        Array { len: result.len() as i32, arr: result.as_mut_ptr() }
     }
 
     pub fn sub(&self, other: &Array) -> Array {
@@ -64,7 +63,11 @@ impl Array {
             panic!("Lengths are different!");
         }
 
-        let mut result = Vec::new();
+        let result = unsafe {
+            let layout = Layout::new::<f64>();
+            let ptr = alloc(layout);
+            std::slice::from_raw_parts_mut(ptr as *mut f64, self.len as usize)
+        };
 
         let arr1 = unsafe {
             vec_from_raw(self.arr, self.len as usize)
@@ -75,13 +78,13 @@ impl Array {
         };
 
         for i in 0..self.len as usize {
-            result.push(arr1[i] - arr2[i]);
+            result[i] = arr1[i] - arr2[i];
         }
 
         mem::forget(arr1);
         mem::forget(arr2);
 
-        Array::from(result.len() as i32, result)
+        Array { len: result.len() as i32, arr: result.as_mut_ptr() }
     }
 
     pub fn mult(&self, other: &Array) -> Array {
@@ -89,7 +92,11 @@ impl Array {
             panic!("Lengths are different!");
         }
 
-        let mut result = Vec::new();
+        let result = unsafe {
+            let layout = Layout::new::<f64>();
+            let ptr = alloc(layout);
+            std::slice::from_raw_parts_mut(ptr as *mut f64, self.len as usize)
+        };
 
         let arr1 = unsafe {
             vec_from_raw(self.arr, self.len as usize)
@@ -100,13 +107,13 @@ impl Array {
         };
 
         for i in 0..self.len as usize {
-            result.push(arr1[i] * arr2[i]);
+            result[i] = arr1[i] * arr2[i];
         }
 
         mem::forget(arr1);
         mem::forget(arr2);
 
-        Array::from(result.len() as i32, result)
+        Array { len: result.len() as i32, arr: result.as_mut_ptr() }
     }
 
     pub fn dotp(&self, other: &Array) -> f64 {
@@ -177,12 +184,6 @@ pub extern "C" fn add(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     };
 
     Array::to_raw(arr1.add(arr2))
-    /*
-    let result = arr1.add(arr2);
-    let mut boxed = Box::new(result);
-
-    &mut *boxed
-    */
 }
 
 #[no_mangle]
