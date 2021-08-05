@@ -1,8 +1,5 @@
 local moonalloy = {{}}
 
--- Array Wrapper class
-Array = {array = nil, len = 0}
-
 -- Load the FFI module
 local ffi = require("ffi")
 
@@ -47,9 +44,20 @@ function new_array(t)
   return new
 end
 
+
+-- Array Wrapper class
+local Array = {array = nil, len = 0}
+Array.__index = Array
+
+setmetatable(Array, {
+    __call = function (cls, ...)
+      return cls.new(...)
+    end,
+  })
+
 -- Create a new Array Wrapper Object
-function Array:new(aTable)
-  setmetatable({}, Array)
+function Array.new(aTable)
+  local self = setmetatable({}, Array)
 
   self.len = #aTable
   self.array = new_array(aTable)
@@ -62,7 +70,7 @@ function Array:print()
   rust_lib.print(self.array)
 end
 
-function Array:from(array, len)
+function Array.from(array, len)
 
   self.array = array
   self.len = len
@@ -97,40 +105,57 @@ function Array:dotp(other)
   return rust_lib.dotp(self.array, self.array)
 end
 
--- Create a table
-local arg = {1.0, 2.0, 3.0}
 
-local a = new_array(arg)
-print("a = ")
-rust_lib.print(a)
+function moonalloy.test_module()
+  -- Create a table
+  local arg = {1.0, 2.0, 3.0}
 
-local a2 = new_array({2.0, 3.0, 5.0})
-print("a2 = ")
-rust_lib.print(a2)
+  local a = new_array(arg)
+  print("a = ")
+  rust_lib.print(a)
 
-print("added = ")
-local added = a + a2
-rust_lib.print(added)
+  local a2 = new_array({2.0, 3.0, 5.0})
+  print("a2 = ")
+  rust_lib.print(a2)
 
-print("a = ")
-rust_lib.print(a)
-print("a2 = ")
-rust_lib.print(a2)
+  print("added = ")
+  local added = a + a2
+  rust_lib.print(added)
 
-local multed = a * a2
-print("multed = ")
-rust_lib.print(multed)
+  print("a = ")
+  rust_lib.print(a)
+  print("a2 = ")
+  rust_lib.print(a2)
 
-print("a:size() = ", #a)
+  local multed = a * a2
+  print("multed = ")
+  rust_lib.print(multed)
 
-print("a:sum() = ", rust_lib.sum(a))
+  print("a:size() = ", #a)
 
-print("a = ")
-rust_lib.print(a)
+  print("a:sum() = ", rust_lib.sum(a))
 
--- For debugging
-print("Success!")
+  print("a = ")
+  rust_lib.print(a)
 
+  -- For debugging
+  print("Success!")
+end
+
+function moonalloy.test_Array()
+  local arg = {1.0, 2.0, 3.0}
+
+  local a = Array.new(arg)
+  print("a = ")
+  a:print()
+
+  local b = Array.new({2.0, 3.0, 5.0})
+  print("b = ")
+  b:print()
+
+  print("a = ")
+  a:print()
+end
 
 -- Return moonalloy to create the module (can now be used with "require")
 return moonalloy
