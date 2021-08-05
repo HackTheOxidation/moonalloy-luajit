@@ -53,6 +53,18 @@ setmetatable(Array, {
     __call = function (cls, ...)
       return cls.new(...)
     end,
+    __add = function(a, b)
+      return a:add(b)
+    end,
+    __sub = function(a, b)
+      return a:sub(b)
+    end,
+    __len = function(a)
+      return a:size()
+    end,
+    __mul = function(a, b)
+      return a:mult(b)
+    end,
   })
 
 -- Create a new Array Wrapper Object
@@ -70,7 +82,7 @@ function Array:print()
   rust_lib.print(self.array)
 end
 
-function Array.from(array, len)
+function Array:from(array, len)
 
   self.array = array
   self.len = len
@@ -155,6 +167,32 @@ function moonalloy.test_Array()
 
   print("a = ")
   a:print()
+
+  local c = Array({3.0, 5.0, 8.0})
+  print("c = ")
+  c:print()
+
+  print("b = ")
+  b:print()
+
+  print("a = ")
+  a:print()
+
+  local added = a:add(b)
+  print("added = ")
+  added:print()
+
+  print("b = ")
+  b:print()
+
+  print("a = ")
+  a:print()
+
+  local added2 = a + b
+  print("added2 = ")
+  added2:print()
+
+  print("Success!")
 end
 
 -- Return moonalloy to create the module (can now be used with "require")
