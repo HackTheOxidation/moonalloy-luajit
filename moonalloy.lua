@@ -1,5 +1,6 @@
 local moonalloy = {{}}
 
+
 -- Load the FFI module
 local ffi = require("ffi")
 
@@ -22,10 +23,12 @@ double dotp(const array_t *arr1, const array_t *arr2);
 ]]
 
 -- Load the shared library from '.so'-file
-rust_lib = ffi.load("./moonalloy/target/debug/libmoonalloy.so")
+local rust_lib = ffi.load("./moonalloy/target/debug/libmoonalloy.so")
+
 
 -- Metatype for Array
 local arr
+
 -- Functions and operator overloads for the metatype
 local mt = {
   __add = function(a, b) return rust_lib.add(a, b) end,
@@ -38,7 +41,7 @@ local mt = {
 -- Creates the metatype with functions and operators
 arr = ffi.metatype("array_t", mt)
 
-function new_array(t) 
+local function new_array(t) 
   local length = "double[" .. #t .. "]"
   local new = arr(#t, ffi.new(length, t))
   return new
@@ -46,24 +49,12 @@ end
 
 
 -- Array Wrapper class
-local Array = {array = nil, len = 0}
+Array = {array = nil, len = 0}
 Array.__index = Array
 
 setmetatable(Array, {
     __call = function (cls, ...)
       return cls.new(...)
-    end,
-    __add = function(a, b)
-      return a:add(b)
-    end,
-    __sub = function(a, b)
-      return a:sub(b)
-    end,
-    __len = function(a)
-      return a:size()
-    end,
-    __mul = function(a, b)
-      return a:mult(b)
     end,
   })
 
@@ -117,6 +108,22 @@ function Array:dotp(other)
   return rust_lib.dotp(self.array, self.array)
 end
 
+Array.__add = function(a, b)
+  return a:add(b)
+end
+
+Array.__sub = function(a, b)
+      return a:sub(b)
+    end
+
+Array.__len = function(a)
+  return a:size()
+end
+
+Array.__mul = function(a, b)
+  return a:mult(b)
+end
+
 
 function moonalloy.test_module()
   -- Create a table
@@ -165,32 +172,21 @@ function moonalloy.test_Array()
   print("b = ")
   b:print()
 
-  print("a = ")
-  a:print()
-
   local c = Array({3.0, 5.0, 8.0})
   print("c = ")
   c:print()
-
-  print("b = ")
-  b:print()
-
-  print("a = ")
-  a:print()
 
   local added = a:add(b)
   print("added = ")
   added:print()
 
-  print("b = ")
-  b:print()
-
-  print("a = ")
-  a:print()
-
   local added2 = a + b
   print("added2 = ")
   added2:print()
+
+  local subbed = a - c
+  print("subbed = ")
+  subbed:print()
 
   print("Success!")
 end
