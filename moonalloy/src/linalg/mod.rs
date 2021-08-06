@@ -41,9 +41,9 @@ impl Array {
         }
 
         let result = unsafe {
-            let layout = Layout::new::<f64>();
-            let ptr = alloc(layout);
-            std::slice::from_raw_parts_mut(ptr as *mut f64, self.len as usize)
+            let layout = Layout::array::<f64>(self.len as usize).unwrap();
+            let ptr = alloc(layout) as *mut f64;
+            std::slice::from_raw_parts_mut(ptr, self.len as usize)
         };
 
         let arr1 = unsafe {
@@ -70,9 +70,9 @@ impl Array {
         }
 
         let result = unsafe {
-            let layout = Layout::new::<f64>();
-            let ptr = alloc(layout);
-            std::slice::from_raw_parts_mut(ptr as *mut f64, self.len as usize)
+            let layout = Layout::array::<f64>(self.len as usize).unwrap();
+            let ptr = alloc(layout) as *mut f64;
+            std::slice::from_raw_parts_mut(ptr, self.len as usize)
         };
 
         let arr1 = unsafe {
@@ -99,9 +99,9 @@ impl Array {
         }
 
         let result = unsafe {
-            let layout = Layout::new::<f64>();
-            let ptr = alloc(layout);
-            std::slice::from_raw_parts_mut(ptr as *mut f64, self.len as usize)
+            let layout = Layout::array::<f64>(self.len as usize).unwrap();
+            let ptr = alloc(layout) as *mut f64;
+            std::slice::from_raw_parts_mut(ptr, self.len as usize)
         };
 
         let arr1 = unsafe {
@@ -129,6 +129,39 @@ impl Array {
         };
         mem::forget(arr);
         v.iter().sum()
+    }
+
+    pub fn concat(&self, other: &Array) -> Array {
+        let len = (self.len + other.len) as usize;
+        let result = unsafe {
+            let layout = Layout::array::<f64>(len).unwrap();
+            let ptr = alloc(layout) as *mut f64;
+            std::slice::from_raw_parts_mut(ptr, len)
+        };
+
+        let arr1 = unsafe {
+            vec_from_raw(self.arr, self.len as usize)
+        };
+
+        let arr2 = unsafe {
+            vec_from_raw(other.arr, other.len as usize)
+        };
+
+        let mut i = 0;
+        for elem in arr1.iter() {
+            result[i] = *elem;
+            i += 1;
+        }
+
+        for elem in arr2.iter() {
+            result[i] = *elem;
+            i += 1;
+        }
+
+        mem::forget(arr1);
+        mem::forget(arr2);
+
+        Array { len: result.len() as i32, arr: result.as_mut_ptr() }
     }
 
     pub fn to_raw(arr: Array) -> *mut Array {

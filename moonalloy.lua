@@ -19,6 +19,7 @@ array_t* add(const array_t *arr1, const array_t *arr2);
 array_t* sub(const array_t *arr1, const array_t *arr2);
 array_t* mult(const array_t *arr1, const array_t *arr2);
 double dotp(const array_t *arr1, const array_t *arr2);
+array_t* concat(const array_t* arr1, const array_t *arr2);
 
 ]]
 
@@ -35,6 +36,7 @@ local mt = {
   __sub = function(a, b) return rust_lib.sub(a, b) end,
   __len = function(a) return a.len end,
   __mul = function(a, b) return rust_lib.mult(a, b) end,
+  __concat = function(a, b) return rust_lib.concat(a, b) end,
   __index = {},
 }
 
@@ -108,6 +110,11 @@ function Array:dotp(other)
   return rust_lib.dotp(self.array, self.array)
 end
 
+function Array:concat(other)
+  local array = Array:from(self.array .. other.array, self.len + other.len)
+  return array
+end
+
 Array.__add = function(a, b)
   return a:add(b)
 end
@@ -124,6 +131,9 @@ Array.__mul = function(a, b)
   return a:mult(b)
 end
 
+Array.__concat = function(a, b)
+  return a:concat(b)
+end
 
 function moonalloy.test_module()
   -- Create a table
@@ -157,6 +167,15 @@ function moonalloy.test_module()
   print("a = ")
   rust_lib.print(a)
 
+  local conc = a .. a2
+  print("conc = ")
+  rust_lib.print(conc)
+
+  print("a = ")
+  rust_lib.print(a)
+  print("a2 = ")
+  rust_lib.print(a2)
+
   -- For debugging
   print("Success!")
 end
@@ -187,6 +206,10 @@ function moonalloy.test_Array()
   local subbed = a - c
   print("subbed = ")
   subbed:print()
+
+  local conc = a .. b
+  print("conc = ")
+  conc:print()
 
   print("Success!")
 end
