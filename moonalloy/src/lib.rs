@@ -1,6 +1,8 @@
 pub mod linalg;
 
 use crate::linalg::Array;
+use std::ffi::CString;
+use std::os::raw::c_char;
 
 #[no_mangle]
 pub extern "C" fn sum(ptr: *mut Array) -> f64 {
@@ -87,6 +89,19 @@ pub extern "C" fn dotp(ptr1: *const Array, ptr2: *const Array) -> f64 {
     };
 
     arr1.dotp(arr2)
+}
+
+#[no_mangle]
+pub extern "C" fn to_string(ptr: *const Array) -> *const c_char {
+    let arr = unsafe {
+        assert!(!ptr.is_null());
+        &*ptr
+    };
+
+    let c_str = CString::new(arr.to_string().as_str()).unwrap();
+    let result = c_str.as_ptr();
+    std::mem::forget(c_str);
+    result
 }
 
 #[no_mangle]

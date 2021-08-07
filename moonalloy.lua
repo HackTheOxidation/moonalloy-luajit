@@ -20,6 +20,7 @@ array_t* sub(const array_t *arr1, const array_t *arr2);
 array_t* mult(const array_t *arr1, const array_t *arr2);
 double dotp(const array_t *arr1, const array_t *arr2);
 array_t* concat(const array_t* arr1, const array_t *arr2);
+char* to_string(const array_t* arr);
 
 ]]
 
@@ -115,6 +116,10 @@ function Array:concat(other)
   return array
 end
 
+function Array:to_string()
+  return ffi.string(rust_lib.to_string(self.arr))
+end
+
 Array.__add = function(a, b)
   return a:add(b)
 end
@@ -175,6 +180,8 @@ function moonalloy.test_module()
   rust_lib.print(a)
   print("a2 = ")
   rust_lib.print(a2)
+
+  print("a = ", ffi.string(rust_lib.to_string(a)))
 
   -- For debugging
   print("Success!")

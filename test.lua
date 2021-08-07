@@ -1,7 +1,7 @@
 local moonalloy = require("moonalloy")
 
---moonalloy.test_module()
-moonalloy.test_Array()
+moonalloy.test_module()
+--moonalloy.test_Array()
 
 -- Test imported 
 local a = Array({1.0, 2.0, 3.0})

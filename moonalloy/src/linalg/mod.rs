@@ -164,6 +164,16 @@ impl Array {
         Array { len: result.len() as i32, arr: result.as_mut_ptr() }
     }
 
+    pub fn to_string(&self) -> String {
+        let temp = unsafe {
+            vec_from_raw(self.arr, self.len as usize)
+        };
+        
+        let result = format!("Array: len = {}, arr = {:?}", self.len, temp);
+        mem::forget(temp);
+        result
+    }
+
     pub fn to_raw(arr: Array) -> *mut Array {
         Box::into_raw(Box::new(arr))
     }
