@@ -38,7 +38,8 @@ local mt = {
   __len = function(a) return a.len end,
   __mul = function(a, b) return rust_lib.mult(a, b) end,
   __concat = function(a, b) return rust_lib.concat(a, b) end,
-  __index = {},
+  __tostring = function(a) return ffi.string(rust_lib.to_string(a)) end,
+  __index = arr,
 }
 
 -- Creates the metatype with functions and operators
@@ -78,6 +79,7 @@ end
 
 function Array:from(array, len)
 
+  setmetatable(self, Array)
   self.array = array
   self.len = len
 
@@ -116,8 +118,8 @@ function Array:concat(other)
   return array
 end
 
-function Array:to_string()
-  return ffi.string(rust_lib.to_string(self.arr))
+function Array:tostring()
+  return tostring(self)
 end
 
 Array.__add = function(a, b)
@@ -125,8 +127,8 @@ Array.__add = function(a, b)
 end
 
 Array.__sub = function(a, b)
-      return a:sub(b)
-    end
+  return a:sub(b)
+end
 
 Array.__len = function(a)
   return a:size()
@@ -140,86 +142,43 @@ Array.__concat = function(a, b)
   return a:concat(b)
 end
 
+Array.__tostring = function(a)
+  return tostring(a.array)
+end
+
+
 function moonalloy.test_module()
   -- Create a table
   local arg = {1.0, 2.0, 3.0}
 
   local a = new_array(arg)
-  print("a = ")
-  rust_lib.print(a)
+  print("a = ", a)
 
   local a2 = new_array({2.0, 3.0, 5.0})
-  print("a2 = ")
-  rust_lib.print(a2)
+  print("a2 = ", a2)
 
-  print("added = ")
   local added = a + a2
-  rust_lib.print(added)
+  print("added = ", added)
 
-  print("a = ")
-  rust_lib.print(a)
-  print("a2 = ")
-  rust_lib.print(a2)
+  print("a = ", a)
+  print("a2 = ", a2)
 
   local multed = a * a2
-  print("multed = ")
-  rust_lib.print(multed)
+  print("multed = ", multed)
 
   print("a:size() = ", #a)
 
   print("a:sum() = ", rust_lib.sum(a))
 
-  print("a = ")
-  rust_lib.print(a)
-
   local conc = a .. a2
-  print("conc = ")
-  rust_lib.print(conc)
+  print("conc = ", conc)
 
-  print("a = ")
-  rust_lib.print(a)
-  print("a2 = ")
-  rust_lib.print(a2)
-
-  print("a = ", ffi.string(rust_lib.to_string(a)))
+  print("tostring(a) = ", tostring(a))
 
   -- For debugging
   print("Success!")
 end
 
-function moonalloy.test_Array()
-  local arg = {1.0, 2.0, 3.0}
-
-  local a = Array.new(arg)
-  print("a = ")
-  a:print()
-
-  local b = Array.new({2.0, 3.0, 5.0})
-  print("b = ")
-  b:print()
-
-  local c = Array({3.0, 5.0, 8.0})
-  print("c = ")
-  c:print()
-
-  local added = a:add(b)
-  print("added = ")
-  added:print()
-
-  local added2 = a + b
-  print("added2 = ")
-  added2:print()
-
-  local subbed = a - c
-  print("subbed = ")
-  subbed:print()
-
-  local conc = a .. b
-  print("conc = ")
-  conc:print()
-
-  print("Success!")
-end
 
 -- Return moonalloy to create the module (can now be used with "require")
 return moonalloy
