@@ -1,11 +1,12 @@
 pub mod linalg;
 
 use crate::linalg::Array;
+use crate::linalg::matrix::Matrix;
 use std::ffi::CString;
 use std::os::raw::c_char;
 
 #[no_mangle]
-pub extern "C" fn sum(ptr: *mut Array) -> f64 {
+pub extern "C" fn array_sum(ptr: *mut Array) -> f64 {
     let arr = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -14,7 +15,7 @@ pub extern "C" fn sum(ptr: *mut Array) -> f64 {
 }
 
 #[no_mangle]
-pub extern "C" fn print(ptr: *mut Array) {
+pub extern "C" fn array_print(ptr: *mut Array) {
     let arr = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -28,7 +29,7 @@ pub extern "C" fn array_new() -> *mut Array {
 }
 
 #[no_mangle]
-pub extern "C" fn add(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
+pub extern "C" fn array_add(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
         &*ptr1
@@ -43,7 +44,7 @@ pub extern "C" fn add(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
 }
 
 #[no_mangle]
-pub extern "C" fn sub(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
+pub extern "C" fn array_sub(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
         &*ptr1
@@ -60,7 +61,7 @@ pub extern "C" fn sub(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
 }
 
 #[no_mangle]
-pub extern "C" fn mult(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
+pub extern "C" fn array_mult(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
         &*ptr1
@@ -77,7 +78,7 @@ pub extern "C" fn mult(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
 }
 
 #[no_mangle]
-pub extern "C" fn dotp(ptr1: *const Array, ptr2: *const Array) -> f64 {
+pub extern "C" fn array_dotp(ptr1: *const Array, ptr2: *const Array) -> f64 {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
         &*ptr1
@@ -92,7 +93,7 @@ pub extern "C" fn dotp(ptr1: *const Array, ptr2: *const Array) -> f64 {
 }
 
 #[no_mangle]
-pub extern "C" fn to_string(ptr: *const Array) -> *const c_char {
+pub extern "C" fn array_to_string(ptr: *const Array) -> *const c_char {
     let arr = unsafe {
         assert!(!ptr.is_null());
         &*ptr
@@ -105,7 +106,7 @@ pub extern "C" fn to_string(ptr: *const Array) -> *const c_char {
 }
 
 #[no_mangle]
-pub extern "C" fn concat(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
+pub extern "C" fn array_concat(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
         &*ptr1
@@ -122,13 +123,40 @@ pub extern "C" fn concat(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
 }
 
 #[no_mangle]
-pub extern "C" fn zeroes(len: i32) -> *mut Array {
+pub extern "C" fn array_zeroes(len: i32) -> *mut Array {
     let array = Array::zeroes(len as usize);
     Array::to_raw(array)
 }
 
 #[no_mangle]
-pub extern "C" fn ones(len: i32) -> *mut Array {
+pub extern "C" fn array_ones(len: i32) -> *mut Array {
     let array = Array::ones(len as usize);
     Array::to_raw(array)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_zeroes(rows: i32, cols: i32) -> *mut Matrix {
+    let mat = Matrix::zeroes(rows, cols);
+    Matrix::to_raw(mat)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_ones(rows: i32, cols: i32) -> *mut Matrix {
+    let mat = Matrix::ones(rows, cols);
+    Matrix::to_raw(mat)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_identity(len: i32) -> *mut Matrix {
+    let mat = Matrix::identity(len);
+    Matrix::to_raw(mat)
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_print(ptr: *mut Matrix) {
+    let mat = unsafe {
+        assert!(!ptr.is_null());
+        &mut *ptr
+    };
+    println!("{}", mat);
 }

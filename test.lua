@@ -36,6 +36,6 @@ end
 
 -- Test imported 
 
--- moonalloy.test_module()
-test_Array()
+moonalloy.test_module()
+-- test_Array()
 

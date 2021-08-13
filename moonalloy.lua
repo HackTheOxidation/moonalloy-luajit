@@ -12,17 +12,27 @@ typedef struct {
   double *arr;
 } array_t;
 
-void print(const array_t *arr1);
+void array_print(const array_t *arr1);
+double array_sum(array_t *arr);
+array_t* array_add(const array_t *arr1, const array_t *arr2);
+array_t* array_sub(const array_t *arr1, const array_t *arr2);
+array_t* array_mult(const array_t *arr1, const array_t *arr2);
+double array_dotp(const array_t *arr1, const array_t *arr2);
+array_t* array_concat(const array_t* arr1, const array_t *arr2);
+char* array_to_string(const array_t* arr);
+array_t* array_zeroes(int len);
+array_t* array_ones(int len);
 
-double sum(array_t *arr);
-array_t* add(const array_t *arr1, const array_t *arr2);
-array_t* sub(const array_t *arr1, const array_t *arr2);
-array_t* mult(const array_t *arr1, const array_t *arr2);
-double dotp(const array_t *arr1, const array_t *arr2);
-array_t* concat(const array_t* arr1, const array_t *arr2);
-char* to_string(const array_t* arr);
-array_t* zeroes(int len);
-array_t* ones(int len);
+typedef struct {
+  int rows;
+  int cols;
+  array_t* arrays;
+} matrix_t;
+
+matrix_t* matrix_zeroes(int rows, int cols);
+matrix_t* matrix_ones(int rows, int cols);
+matrix_t* matrix_identity(int len);
+void matrix_print(matrix_t *mat);
 
 ]]
 
@@ -34,18 +44,18 @@ local rust_lib = ffi.load("./moonalloy/target/debug/libmoonalloy.so")
 local arr
 
 -- Functions and operator overloads for the metatype
-local mt = {
-  __add = function(a, b) return rust_lib.add(a, b) end,
-  __sub = function(a, b) return rust_lib.sub(a, b) end,
+local arr_mt = {
+  __add = function(a, b) return rust_lib.array_add(a, b) end,
+  __sub = function(a, b) return rust_lib.array_sub(a, b) end,
   __len = function(a) return a.len end,
-  __mul = function(a, b) return rust_lib.mult(a, b) end,
-  __concat = function(a, b) return rust_lib.concat(a, b) end,
-  __tostring = function(a) return ffi.string(rust_lib.to_string(a)) end,
+  __mul = function(a, b) return rust_lib.array_mult(a, b) end,
+  __concat = function(a, b) return rust_lib.array_concat(a, b) end,
+  __tostring = function(a) return ffi.string(rust_lib.array_to_string(a)) end,
   __index = arr,
 }
 
 -- Creates the metatype with functions and operators
-arr = ffi.metatype("array_t", mt)
+arr = ffi.metatype("array_t", arr_mt)
 
 local function new_array(t) 
   local length = "double[" .. #t .. "]"
@@ -76,7 +86,7 @@ end
 
 -- print() method for Array Wrapper
 function Array:print()
-  rust_lib.print(self.array)
+  rust_lib.array_print(self.array)
 end
 
 function Array:from(array, len)
@@ -89,7 +99,7 @@ function Array:from(array, len)
 end
 
 function Array:add(other)
-  local array = Array:from(rust_lib.add(self.array, other.array), self.len)
+  local array = Array:from(self.array + other.array, self.len)
   return array
 end
 
@@ -99,7 +109,7 @@ function Array:sub(other)
 end
 
 function Array:sum()
-  return rust_lib.sum(self.array)
+  return rust_lib.array_sum(self.array)
 end
 
 function Array:size()
@@ -112,7 +122,7 @@ function Array:mult(other)
 end
 
 function Array:dotp(other)
-  return rust_lib.dotp(self.array, self.array)
+  return rust_lib.array_dotp(self.array, self.array)
 end
 
 function Array:concat(other)
@@ -127,7 +137,7 @@ end
 function Array:zeroes(len)
 
   setmetatable(self, Array)
-  self.array = rust_lib.zeroes(len)
+  self.array = rust_lib.array_zeroes(len)
   self.len = len
 
   return self
@@ -136,7 +146,7 @@ end
 function Array:ones(len)
 
   setmetatable(self, Array)
-  self.array = rust_lib.ones(len)
+  self.array = rust_lib.array_ones(len)
   self.len = len
 
   return self
@@ -167,6 +177,45 @@ Array.__tostring = function(a)
 end
 
 
+-- Matrix metatype
+local mat
+
+local mat_mt = {
+  __index = mat,
+}
+
+mat = ffi.metatype("matrix_t", mat_mt)
+
+local function new_matrix(t) 
+  local slice = {}
+  local rows
+
+  for i = 1, #t do
+    slice[i] = new_array(t[i])
+    rows = #slice[i]
+  end
+
+  for i = 1, #slice do
+    rust_lib.array_print(slice[i])
+  end
+
+  local length = "array_t[" .. #t .. "]"
+  local new = mat(rows, #slice, ffi.new(length, slice))
+  return new
+end
+
+-- Matrix Wrapper class
+Matrix = { rows = 0, cols = 0, matrix = nil }
+Matrix.__index = Matrix
+
+setmetatable(Matrix, {
+    __call = function (cls, ...)
+      return cls.new(...)
+    end,
+  })
+
+
+-- Test for the entire module
 function moonalloy.test_module()
   -- Create a table
   local arg = {1.0, 2.0, 3.0}
@@ -188,13 +237,16 @@ function moonalloy.test_module()
 
   print("a:size() = ", #a)
 
-  print("a:sum() = ", rust_lib.sum(a))
+  print("a:sum() = ", rust_lib.array_sum(a))
 
   local conc = a .. a2
   print("conc = ", conc)
 
   print("tostring(a) = ", tostring(a))
 
+
+  local m = new_matrix({{1.0, 2.0}, {3.0, 4.0}})
+  rust_lib.matrix_print(m)
 
   -- For debugging
   print("Success!")

@@ -23,6 +23,13 @@ impl Array {
             arr: arr_slice.as_mut_ptr(),
         }
     }
+
+    fn from_slice(slice: &mut [f64], len: i32) -> Array {
+        Array {
+            len,
+            arr: slice.as_mut_ptr(),
+        }
+    }
     
     pub fn sum(&self) -> f64 {
         let mut s: f64 = 0.0;
@@ -171,7 +178,7 @@ impl Array {
             vec_from_raw(self.arr, self.len as usize)
         };
         
-        let result = format!("Array: len = {}, arr = {:?}", self.len, temp);
+        let result = format!("Array: {:?}", temp);
         mem::forget(temp);
         result
     }
@@ -212,7 +219,7 @@ impl std::fmt::Display for Array {
             vec_from_raw(self.arr, self.len as usize)
         };
 
-        let result = write!(f, "Array: len = {}, arr = {:?}", self.len, temp);
+        let result = write!(f, "Array: {:?}", temp);
         mem::forget(temp);
         result
     }
