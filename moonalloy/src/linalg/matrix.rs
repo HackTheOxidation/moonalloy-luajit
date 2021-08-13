@@ -77,15 +77,22 @@ impl Matrix {
 
     pub fn to_string(&self) -> String {
         let array_slice = unsafe {
-            let layout = Layout::array::<Array>(self.cols as usize).unwrap();
-            let ptr = alloc(layout);
-            std::slice::from_raw_parts_mut(ptr as *mut Array, self.cols as usize)
+            std::slice::from_raw_parts_mut(self.arrays, self.cols as usize)
         };
+
         let mut result = String::from("Matrix: [");
 
-        array_slice.iter().for_each(|elem| {
-            result.push_str(elem.to_string().as_str());
-        });
+        for (i, arr) in array_slice.iter().enumerate() {
+            let slice = unsafe {
+                std::slice::from_raw_parts_mut(arr.arr, arr.len as usize)
+            };
+
+            result.push_str(format!("{:?}", slice).as_str());
+            
+            if i < (arr.len - 1) as usize {
+                result.push_str(", ")
+            }
+        }
 
         result.push(']');
 
@@ -100,26 +107,7 @@ impl Matrix {
 impl Display for Matrix {
 
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let temp = unsafe {
-            std::slice::from_raw_parts_mut(self.arrays, self.cols as usize)
-        };
-
-        let mut string = String::from("Matrix: [");
-
-        for (i, arr) in temp.iter().enumerate() {
-            let slice = unsafe {
-                std::slice::from_raw_parts_mut(arr.arr, arr.len as usize)
-            };
-            string.push_str(format!("{:?}", slice).as_str());
-            
-            if i < (arr.len - 1) as usize {
-                string.push_str(", ")
-            }
-        }
-
-        string.push(']');
-
-        write!(f,"{}", string)
+        write!(f,"{}", self.to_string())
     }
 }  
 

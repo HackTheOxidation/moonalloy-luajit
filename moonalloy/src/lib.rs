@@ -5,6 +5,8 @@ use crate::linalg::matrix::Matrix;
 use std::ffi::CString;
 use std::os::raw::c_char;
 
+
+// Array
 #[no_mangle]
 pub extern "C" fn array_sum(ptr: *mut Array) -> f64 {
     let arr = unsafe {
@@ -134,6 +136,8 @@ pub extern "C" fn array_ones(len: i32) -> *mut Array {
     Array::to_raw(array)
 }
 
+
+// Matrix
 #[no_mangle]
 pub extern "C" fn matrix_zeroes(rows: i32, cols: i32) -> *mut Matrix {
     let mat = Matrix::zeroes(rows, cols);
@@ -159,4 +163,17 @@ pub extern "C" fn matrix_print(ptr: *mut Matrix) {
         &mut *ptr
     };
     println!("{}", mat);
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_to_string(ptr: *const Matrix) -> *const c_char {
+    let mat = unsafe {
+        assert!(!ptr.is_null());
+        &*ptr
+    };
+
+    let c_str = CString::new(mat.to_string().as_str()).unwrap();
+    let result = c_str.as_ptr();
+    std::mem::forget(c_str);
+    result
 }

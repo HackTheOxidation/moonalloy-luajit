@@ -33,6 +33,7 @@ matrix_t* matrix_zeroes(int rows, int cols);
 matrix_t* matrix_ones(int rows, int cols);
 matrix_t* matrix_identity(int len);
 void matrix_print(matrix_t *mat);
+char* matrix_to_string(const matrix_t* mat);
 
 ]]
 
@@ -182,21 +183,36 @@ local mat
 
 local mat_mt = {
   __index = mat,
+  __tostring = function(m) return ffi.string(rust_lib.matrix_to_string(m)) end,
 }
 
 mat = ffi.metatype("matrix_t", mat_mt)
+
+local function is_valid_matrix(t)
+  local len = nil
+
+  for i = 1, #t do
+    if (len ~= nil) then
+      if (len ~= #t[i]) then
+        return false
+      end
+    else
+      len = #t[i]
+    end
+  end
+
+  return true
+end
 
 local function new_matrix(t) 
   local slice = {}
   local rows
 
+  assert(is_valid_matrix(t) == true, "Invalid table - Cannot be converted into a matrix: Asymmetric dimensions.")
+
   for i = 1, #t do
     slice[i] = new_array(t[i])
     rows = #slice[i]
-  end
-
-  for i = 1, #slice do
-    rust_lib.array_print(slice[i])
   end
 
   local length = "array_t[" .. #t .. "]"
@@ -214,9 +230,37 @@ setmetatable(Matrix, {
     end,
   })
 
+function Matrix:new(t)
+  local self = setmetatable({}, Matrix)
+
+  self.rows = #t[1]
+  self.cols = #t
+  self.matrix = new_matrix(t)
+
+  return self
+end
+
+function Matrix:from(rows, cols, matrix)
+
+  setmetatable(self, Matrix)
+  self.matrix = matrix
+  self.rows = rows
+  self.cols = cols
+
+  return self
+end
+
+function Matrix:print()
+  rust_lib.matrix_print(self.matrix)
+end
+
+Matrix.__tostring = function(m)
+  return tostring(m.matrix)
+end
+
 
 -- Test for the entire module
-function moonalloy.test_module()
+function moonalloy.test_array()
   -- Create a table
   local arg = {1.0, 2.0, 3.0}
 
@@ -244,14 +288,17 @@ function moonalloy.test_module()
 
   print("tostring(a) = ", tostring(a))
 
-
-  local m = new_matrix({{1.0, 2.0}, {3.0, 4.0}})
-  rust_lib.matrix_print(m)
-
   -- For debugging
   print("Success!")
 end
 
+function moonalloy.test_matrix() 
+  local m = new_matrix({{1.0, 2.0}, {3.0, 4.0}})
+  print("m = ", m)
+
+  -- For debugging
+  print("Success!")
+end
 
 -- Return moonalloy to create the module (can now be used with "require")
 return moonalloy

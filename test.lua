@@ -31,11 +31,20 @@ function test_Array()
   local o = Array:ones(3)
   print("o = ", o)
 
-  print("Success!")
+  print("success!")
+end
+
+function test_Matrix() 
+  local m = Matrix:new({{1.0, 2.0}, {3.0, 4.0}})
+  print("m = ", m)
+
+  print("success!")
 end
 
 -- Test imported 
 
-moonalloy.test_module()
+-- moonalloy.test_array()
+-- moonalloy.test_matrix()
 -- test_Array()
+test_Matrix()
 

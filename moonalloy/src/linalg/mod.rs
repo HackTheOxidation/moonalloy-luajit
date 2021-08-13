@@ -174,13 +174,11 @@ impl Array {
     }
 
     pub fn to_string(&self) -> String {
-        let temp = unsafe {
-            vec_from_raw(self.arr, self.len as usize)
+        let array_slice = unsafe {
+            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
         };
         
-        let result = format!("Array: {:?}", temp);
-        mem::forget(temp);
-        result
+        format!("Array: {:?}", array_slice)
     }
 
     pub fn to_raw(arr: Array) -> *mut Array {
@@ -215,13 +213,7 @@ impl Array {
 
 impl std::fmt::Display for Array {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let temp = unsafe {
-            vec_from_raw(self.arr, self.len as usize)
-        };
-
-        let result = write!(f, "Array: {:?}", temp);
-        mem::forget(temp);
-        result
+        write!(f, "{}", self.to_string())
     }
 }
 
