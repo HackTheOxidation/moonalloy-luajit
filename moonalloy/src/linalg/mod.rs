@@ -2,6 +2,8 @@ use std::fmt::*;
 use std::mem;
 use std::alloc::{alloc, Layout};
 
+pub mod matrix;
+
 #[repr(C)]
 pub struct Array {
     pub len: i32,
@@ -178,6 +180,30 @@ impl Array {
         Box::into_raw(Box::new(arr))
     }
 
+    fn of(val: f64, len: usize) -> Array {
+        let arr_slice = unsafe {
+            let layout = Layout::array::<f64>(len).unwrap();
+            let ptr = alloc(layout);
+            std::slice::from_raw_parts_mut(ptr as *mut f64, len)
+        };
+
+        for i in 0..len {
+            arr_slice[i] = val;
+        }
+
+        Array {
+            arr: arr_slice.as_mut_ptr(),
+            len: len as i32,
+        }
+    }
+
+    pub fn zeroes(len: usize) -> Array {
+        Array::of(0.0, len)
+    }
+
+    pub fn ones(len: usize) -> Array {
+        Array::of(1.0, len)
+    }
 }
 
 impl std::fmt::Display for Array {

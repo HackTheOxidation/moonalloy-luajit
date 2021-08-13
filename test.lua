@@ -24,6 +24,12 @@ function test_Array()
 
   a = a + c
   print("a = ", a)
+  
+  local z = Array:zeroes(3)
+  print("z = ", z)
+
+  local o = Array:ones(3)
+  print("o = ", o)
 
   print("Success!")
 end

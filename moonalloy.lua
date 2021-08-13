@@ -21,6 +21,8 @@ array_t* mult(const array_t *arr1, const array_t *arr2);
 double dotp(const array_t *arr1, const array_t *arr2);
 array_t* concat(const array_t* arr1, const array_t *arr2);
 char* to_string(const array_t* arr);
+array_t* zeroes(int len);
+array_t* ones(int len);
 
 ]]
 
@@ -122,6 +124,24 @@ function Array:tostring()
   return tostring(self)
 end
 
+function Array:zeroes(len)
+
+  setmetatable(self, Array)
+  self.array = rust_lib.zeroes(len)
+  self.len = len
+
+  return self
+end
+
+function Array:ones(len)
+
+  setmetatable(self, Array)
+  self.array = rust_lib.ones(len)
+  self.len = len
+
+  return self
+end
+
 Array.__add = function(a, b)
   return a:add(b)
 end
@@ -174,6 +194,7 @@ function moonalloy.test_module()
   print("conc = ", conc)
 
   print("tostring(a) = ", tostring(a))
+
 
   -- For debugging
   print("Success!")

@@ -120,3 +120,15 @@ pub extern "C" fn concat(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
 
     Array::to_raw(result)
 }
+
+#[no_mangle]
+pub extern "C" fn zeroes(len: i32) -> *mut Array {
+    let array = Array::zeroes(len as usize);
+    Array::to_raw(array)
+}
+
+#[no_mangle]
+pub extern "C" fn ones(len: i32) -> *mut Array {
+    let array = Array::ones(len as usize);
+    Array::to_raw(array)
+}
