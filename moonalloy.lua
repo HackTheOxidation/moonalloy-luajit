@@ -40,6 +40,7 @@ matrix_t* matrix_sub(const matrix_t *mat1, const matrix_t *mat2);
 matrix_t* matrix_elem_mult(const matrix_t *mat1, const matrix_t *mat2);
 matrix_t* matrix_transpose(const matrix_t *mat);
 matrix_t* matrix_mult(const matrix_t *mat1, const matrix_t *mat2);
+matrix_t* matrix_scalar(const matrix_t *mat, double scal);
 
 ]]
 
@@ -52,8 +53,7 @@ local arr
 
 -- Functions and operator overloads for the metatype
 local arr_mt = {
-  __add = function(a, b) return rust_lib.array_add(a, b) end,
-  __sub = function(a, b) return rust_lib.array_sub(a, b) end,
+  __add = function(a, b) return rust_lib.array_add(a, b) end, __sub = function(a, b) return rust_lib.array_sub(a, b) end,
   __len = function(a) return a.len end,
   __mul = function(a, b) return rust_lib.array_mult(a, b) end,
   __concat = function(a, b) return rust_lib.array_concat(a, b) end,
@@ -348,6 +348,11 @@ function Matrix:mult(other)
   return matrix
 end
 
+function Matrix:scalar(scal)
+  local matrix = Matrix:from(self.rows, self.cols, rust_lib.matrix_scalar(self.matrix, scal))
+  return matrix
+end
+
 Matrix.__tostring = function(m)
   return tostring(m.matrix)
 end
@@ -383,7 +388,7 @@ function moonalloy.test_array()
   print("a2 = ", a2)
 
   local multed = a * a2
-  print("multed = ", multed)
+  print("multed = a * a2 = ", multed)
 
   print("a:size() = ", #a)
 
@@ -394,6 +399,12 @@ function moonalloy.test_array()
 
   print("tostring(a) = ", tostring(a))
 
+  local add_again = added + a2
+  print("add_again = added + a2 = ", add_again)
+
+  local mult_again = multed * a
+  print("mult_again = multed * a = ", mult_again)
+
   -- For debugging
   print("Success!")
 end
@@ -401,6 +412,18 @@ end
 function moonalloy.test_matrix() 
   local m = new_matrix({{1.0, 2.0}, {3.0, 4.0}})
   print("m = ", m)
+
+  local m2 = new_matrix({{2.0, 3.0}, {5.0, 8.0}})
+  print("m2 = ", m2)
+
+  local added = m + m2
+  print("added = ", added)
+
+  local t = rust_lib.matrix_transpose(m)
+  print("t = ", t)
+
+  local multed = m * m
+  print("multed = ", multed)
 
   -- For debugging
   print("Success!")

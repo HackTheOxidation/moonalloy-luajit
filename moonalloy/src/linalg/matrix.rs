@@ -121,6 +121,28 @@ impl Matrix {
         }
     }
 
+    pub fn scalar(&self, scal: f64) -> Matrix {
+        let result = unsafe {
+            let layout = Layout::array::<Array>(self.rows as usize).unwrap();
+            let ptr = alloc(layout);
+            std::slice::from_raw_parts_mut(ptr as *mut Array, self.rows as usize)
+        };
+
+        let slice = unsafe {
+            std::slice::from_raw_parts_mut(self.arrays, self.rows as usize)
+        };
+
+        for i in 0..self.rows as usize {
+            result[i] = slice[i].scalar(scal);
+        }
+
+        Matrix {
+            rows: self.rows,
+            cols: self.cols,
+            arrays: result.as_mut_ptr(),
+        }
+    }
+
     pub fn sub(&self, other: &Matrix) -> Matrix {
         assert!(self.cols == other.cols, "ERROR - Matrix subtraction: Columns differ in dimensions.");
         assert!(self.rows == other.rows, "ERROR - Matrix subtraction: Rows differ in dimensions.");
@@ -214,7 +236,6 @@ impl Matrix {
             std::slice::from_raw_parts_mut(ptr as *mut Array, self.cols as usize)
         };
 
-
         let mat_t = self.transpose();
 
         let mat_slice1 = unsafe {
@@ -225,11 +246,11 @@ impl Matrix {
             std::slice::from_raw_parts_mut(other.arrays, other.rows as usize)
         };
 
-        for i in 0..mat_t.cols as usize {
+        for i in 0..self.cols as usize {
             result[i] = Array::zeros(other.rows as usize);
 
             for j in 0..other.rows as usize {
-                result[i].set(mat_slice1[i].dotp(&mat_slice2[j]), j);
+                result[i].set(mat_slice1[j].dotp(&mat_slice2[i]), j);
             }
         }
 

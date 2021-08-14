@@ -204,6 +204,16 @@ pub extern "C" fn matrix_add(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut M
 }
 
 #[no_mangle]
+pub extern "C" fn matrix_scalar(ptr: *const Matrix, scal: f64) -> *mut Matrix {
+    let mat = unsafe {
+        assert!(!ptr.is_null());
+        &*ptr
+    };
+
+    Matrix::to_raw(mat.scalar(scal))
+}
+
+#[no_mangle]
 pub extern "C" fn matrix_sub(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut Matrix {
     let mat1 = unsafe {
         assert!(!ptr1.is_null());

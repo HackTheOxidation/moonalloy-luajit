@@ -146,7 +146,7 @@ impl Array {
     }
 
     pub fn dotp(&self, other: &Array) -> f64 {
-        let arr = self.add(other);
+        let arr = self.mult(other);
         let v = unsafe {
             vec_from_raw(arr.arr, arr.len as usize)
         };

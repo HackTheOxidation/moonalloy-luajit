@@ -28,7 +28,7 @@ function test_Array()
   local conc = added .. subbed
   print("conc = ", conc)
 
-  a = a + c
+  local a = a + c
   print("a = ", a)
   
   local z = Array:zeros(3)
@@ -36,6 +36,12 @@ function test_Array()
 
   local o = Array:ones(3)
   print("o = ", o)
+
+  local multed = b * c
+  print("multed = ", multed)
+
+  local again = multed * added
+  print("again = ", again)
 
   print("Success!")
 end
@@ -71,12 +77,15 @@ function test_Matrix()
   local multed = m * m
   print("multed = ", multed)
 
+  local scal = m:scalar(2.0)
+  print("scal = ", scal)
+
   print("Success!")
 end
 
 
 -- moonalloy.test_array()
--- moonalloy.test_matrix()
+moonalloy.test_matrix()
 -- test_Array()
-test_Matrix()
+-- test_Matrix()
 
