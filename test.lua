@@ -83,12 +83,15 @@ function test_Matrix()
   local scal = m:scalar(2.0)
   print("scal = ", scal)
 
+  m = m + m2
+  print("m = m + m2 = ", m)
+
   print("Success!")
 end
 
 
 -- moonalloy.test_array()
 -- moonalloy.test_matrix()
-test_Array()
--- test_Matrix()
+-- test_Array()
+test_Matrix()
 

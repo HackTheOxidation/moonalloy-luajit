@@ -298,76 +298,109 @@ function Matrix:zeros(rows, cols)
   assert(rows > 0, "ERROR: Number of rows must be positive.")
   assert(cols > 0, "ERROR: Number of columns must be positive.")
 
-  setmetatable(self, Matrix)
-  self.matrix = rust_lib.matrix_zeros(rows, cols)
-  self.rows = rows
-  self.cols = cols
+  local result = setmetatable({}, Matrix)
+  result.matrix = rust_lib.matrix_zeros(rows, cols)
+  result.rows = self.rows
+  result.cols = self.cols
+  result.__index = result
 
-  return self
+  return result
 end
 
 function Matrix:ones(rows, cols)
   assert(rows > 0, "ERROR: Number of rows must be positive.")
   assert(cols > 0, "ERROR: Number of columns must be positive.")
 
-  setmetatable(self, Matrix)
-  self.matrix = rust_lib.matrix_ones(rows, cols)
-  self.rows = rows
-  self.cols = cols
+  local result = setmetatable({}, Matrix)
+  result.matrix = rust_lib.matrix_ones(rows, cols)
+  result.rows = rows
+  result.cols = cols
+  result.__index = result
 
-  return self
+  return result
 end
 
 function Matrix:identity(len)
   assert(len > 0, "ERROR: Cannot create an identity matrix smaller than 1x1.")
 
-  setmetatable(self, Matrix)
-  self.matrix = rust_lib.matrix_identity(len)
-  self.rows = len
-  self.cols = len
+  local result = setmetatable({}, Matrix)
+  result.matrix = rust_lib.matrix_identity(len)
+  result.rows = len
+  result.cols = len
+  result.__index = result
 
-  return self
+  return result
 end
 
 function Matrix:add(other)
   assert(self.rows == other.rows, "ERROR: Matrices differ in number of rows.")
   assert(self.cols == other.cols, "ERROR: Matrices differ in number of columns.")
 
-  local matrix = Matrix:from(self.rows, self.cols, self.matrix + other.matrix)
-  return matrix
+  local result = setmetatable({}, Matrix)
+  result.matrix = self.matrix + other.matrix
+  result.rows = self.rows
+  result.cols = self.cols
+  result.__index = result
+
+  return result
 end
 
 function Matrix:sub(other)
   assert(self.rows == other.rows, "ERROR: Matrices differ in number of rows.")
   assert(self.cols == other.cols, "ERROR: Matrices differ in number of columns.")
 
-  local matrix = Matrix:from(self.rows, self.cols, self.matrix - other.matrix)
-  return matrix
+  local result = setmetatable({}, Matrix)
+  result.matrix = self.matrix - other.matrix
+  result.rows = self.rows
+  result.cols = self.cols
+  result.__index = result
+
+  return result
 end
 
 function Matrix:elem_mult(other)
   assert(self.rows == other.rows, "ERROR: Matrices differ in number of rows.")
   assert(self.cols == other.cols, "ERROR: Matrices differ in number of columns.")
 
-  local matrix = Matrix:from(self.rows, self.cols, rust_lib.matrix_elem_mult(self.matrix, other.matrix))
-  return matrix
+  local result = setmetatable({}, Matrix)
+  result.matrix = rust_lib.matrix_elem_mult(self.matrix, other.matrix)
+  result.rows = self.rows
+  result.cols = self.cols
+  result.__index = result
+
+  return result
 end
 
 function Matrix:transpose()
-  local matrix = Matrix:from(self.cols, self.rows, rust_lib.matrix_transpose(self.matrix))
-  return matrix
+  local result = setmetatable({}, Matrix)
+  result.matrix = rust_lib.matrix_transpose(self.matrix)
+  result.rows = self.rows
+  result.cols = self.cols
+  result.__index = result
+
+  return result
 end
 
 function Matrix:mult(other)
   assert(self.rows == other.cols, "ERROR: Cannot multiply matrices - Incompatible dimensions.")
 
-  local matrix = Matrix:from(other.rows, self.cols, self.matrix * other.matrix)
-  return matrix
+  local result = setmetatable({}, Matrix)
+  result.matrix = self.matrix * other.matrix
+  result.rows = other.rows
+  result.cols = self.cols
+  result.__index = result
+
+  return result
 end
 
 function Matrix:scalar(scal)
-  local matrix = Matrix:from(self.rows, self.cols, rust_lib.matrix_scalar(self.matrix, scal))
-  return matrix
+  local result = setmetatable({}, Matrix)
+  result.matrix = rust_lib.matrix_scalar(self.matrix, scal)
+  result.rows = self.rows
+  result.cols = self.cols
+  result.__index = result
+
+  return result
 end
 
 Matrix.__tostring = function(m)
