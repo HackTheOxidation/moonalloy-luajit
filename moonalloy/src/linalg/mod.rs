@@ -223,6 +223,24 @@ impl Array {
     pub fn ones(len: usize) -> Array {
         Array::of(1.0, len)
     }
+
+    pub fn get(&self, index: usize) -> f64 {
+        assert!(index < self.len as usize, "ERROR - Array get: Index out of bounds.");
+        let slice = unsafe {
+            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
+        };
+
+        slice[index]
+    }
+
+    pub fn set(&self, val: f64, index: usize) {
+        assert!(index < self.len as usize, "ERROR - Array get: Index out of bounds.");
+        let slice = unsafe {
+            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
+        };
+
+        slice[index] = val;
+    }
 }
 
 impl std::fmt::Display for Array {

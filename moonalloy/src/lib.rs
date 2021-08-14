@@ -217,3 +217,43 @@ pub extern "C" fn matrix_sub(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut M
 
     Matrix::to_raw(mat1.sub(mat2))
 }
+
+#[no_mangle]
+pub extern "C" fn matrix_elem_mult(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut Matrix {
+    let mat1 = unsafe {
+        assert!(!ptr1.is_null());
+        &*ptr1
+    };
+
+    let mat2 = unsafe {
+        assert!(!ptr2.is_null());
+        &*ptr2
+    };
+
+    Matrix::to_raw(mat1.elem_mult(mat2))
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_transpose(ptr: *const Matrix) -> *mut Matrix {
+    let mat = unsafe {
+        assert!(!ptr.is_null());
+        &*ptr
+    };
+
+    Matrix::to_raw(mat.transpose())
+}
+
+#[no_mangle]
+pub extern "C" fn matrix_mult(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut Matrix {
+    let mat1 = unsafe {
+        assert!(!ptr1.is_null());
+        &*ptr1
+    };
+
+    let mat2 = unsafe {
+        assert!(!ptr2.is_null());
+        &*ptr2
+    };
+
+    Matrix::to_raw(mat1.mult(mat2))
+}

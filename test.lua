@@ -62,6 +62,15 @@ function test_Matrix()
   local subbed = added - m2
   print("subbed = ", subbed)
 
+  local elem_multed = m:elem_mult(m2)
+  print("elem_multed = ", elem_multed)
+
+  local t = m:transpose()
+  print("t = ", t)
+
+  local multed = m * m
+  print("multed = ", multed)
+
   print("Success!")
 end
 
