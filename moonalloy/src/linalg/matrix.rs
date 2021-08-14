@@ -43,7 +43,7 @@ impl Matrix {
         }
     }
 
-    pub fn zeroes(rows: i32, cols: i32) -> Matrix {
+    pub fn zeros(rows: i32, cols: i32) -> Matrix {
         Matrix::of(0.0, rows, cols)
     }
 
@@ -52,27 +52,21 @@ impl Matrix {
     }
 
     pub fn identity(len: i32) -> Matrix {
+        let mat = Matrix::zeros(len, len);
+
         let mat_slice = unsafe {
-            let layout = Layout::array::<Array>(len as usize).unwrap();
-            let ptr = alloc(layout);
-            std::slice::from_raw_parts_mut(ptr as *mut Array, len as usize)
+            std::slice::from_raw_parts_mut(mat.arrays, len as usize)
         };
 
         for i in 0..len as usize {
             let slice = unsafe {
-                let layout = Layout::array::<f64>(len as usize).unwrap();
-                let ptr = alloc(layout);
-                std::slice::from_raw_parts_mut(ptr as *mut f64, len as usize)
+                std::slice::from_raw_parts_mut(mat_slice[i].arr, len as usize)
             };
+
             slice[i] = 1.0;
-            mat_slice[i] = Array::from_slice(slice, len);
         }
 
-        Matrix {
-            rows: len,
-            cols: len,
-            arrays: mat_slice.as_mut_ptr(),
-        }
+        mat
     }
 
     pub fn to_string(&self) -> String {

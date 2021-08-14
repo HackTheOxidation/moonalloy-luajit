@@ -14,13 +14,14 @@ typedef struct {
 
 void array_print(const array_t *arr1);
 double array_sum(array_t *arr);
+array_t* array_scalar(const array_t *arr1, double scal);
 array_t* array_add(const array_t *arr1, const array_t *arr2);
 array_t* array_sub(const array_t *arr1, const array_t *arr2);
 array_t* array_mult(const array_t *arr1, const array_t *arr2);
 double array_dotp(const array_t *arr1, const array_t *arr2);
 array_t* array_concat(const array_t* arr1, const array_t *arr2);
 char* array_to_string(const array_t* arr);
-array_t* array_zeroes(int len);
+array_t* array_zeros(int len);
 array_t* array_ones(int len);
 
 typedef struct {
@@ -29,7 +30,7 @@ typedef struct {
   array_t* arrays;
 } matrix_t;
 
-matrix_t* matrix_zeroes(int rows, int cols);
+matrix_t* matrix_zeros(int rows, int cols);
 matrix_t* matrix_ones(int rows, int cols);
 matrix_t* matrix_identity(int len);
 void matrix_print(matrix_t *mat);
@@ -91,7 +92,6 @@ function Array:print()
 end
 
 function Array:from(array, len)
-
   setmetatable(self, Array)
   self.array = array
   self.len = len
@@ -99,12 +99,21 @@ function Array:from(array, len)
   return self
 end
 
+function Array:scalar(scal)
+  local array = Array:from(rust_lib.array_scalar(self.array, scal), self.len)
+  return array
+end
+
 function Array:add(other)
+  assert(self.len == other.len, "ERROR: Arrays must have equal lengths.")
+
   local array = Array:from(self.array + other.array, self.len)
   return array
 end
 
 function Array:sub(other)
+  assert(self.len == other.len, "ERROR: Arrays must have equal lengths.")
+
   local array = Array:from(self.array - other.array, self.len)
   return array
 end
@@ -118,6 +127,8 @@ function Array:size()
 end
 
 function Array:mult(other)
+  assert(self.len == other.len, "ERROR: Arrays must have equal lengths.")
+
   local array = Array:from(self.array * other.array, self.len)
   return array
 end
@@ -135,16 +146,18 @@ function Array:tostring()
   return tostring(self)
 end
 
-function Array:zeroes(len)
+function Array:zeros(len)
+  assert(len > 0, "ERROR: Length must be positive.")
 
   setmetatable(self, Array)
-  self.array = rust_lib.array_zeroes(len)
+  self.array = rust_lib.array_zeros(len)
   self.len = len
 
   return self
 end
 
 function Array:ones(len)
+  assert(len > 0, "ERROR: Length must be positive.")
 
   setmetatable(self, Array)
   self.array = rust_lib.array_ones(len)
@@ -241,6 +254,8 @@ function Matrix:new(t)
 end
 
 function Matrix:from(rows, cols, matrix)
+  assert(rows > 0, "ERROR: Number of rows must be positive.")
+  assert(cols > 0, "ERROR: Number of columns must be positive.")
 
   setmetatable(self, Matrix)
   self.matrix = matrix
@@ -252,6 +267,36 @@ end
 
 function Matrix:print()
   rust_lib.matrix_print(self.matrix)
+end
+
+function Matrix:zeros(rows, cols)
+  assert(rows > 0, "ERROR: Number of rows must be positive.")
+  assert(cols > 0, "ERROR: Number of columns must be positive.")
+
+  local self = setmetatable(self, Matrix)
+  self.matrix = rust_lib.matrix_zeros(rows, cols)
+  self.rows = rows
+  self.cols = cols
+
+  return self
+end
+
+function Matrix:ones(rows, cols)
+  local self = setmetatable(self, Matrix)
+  self.matrix = rust_lib.matrix_ones(rows, cols)
+  self.rows = rows
+  self.cols = cols
+
+  return self
+end
+
+function Matrix:identity(len)
+  local self = setmetatable(self, Matrix)
+  self.matrix = rust_lib.matrix_identity(len)
+  self.rows = len
+  self.cols = len
+
+  return self
 end
 
 Matrix.__tostring = function(m)

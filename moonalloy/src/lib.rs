@@ -31,6 +31,16 @@ pub extern "C" fn array_new() -> *mut Array {
 }
 
 #[no_mangle]
+pub extern "C" fn array_scalar(ptr: *mut Array, scal: f64) -> *mut Array {
+    let arr = unsafe {
+        assert!(!ptr.is_null());
+        &*ptr
+    };
+
+    Array::to_raw(arr.scalar(scal))
+}
+
+#[no_mangle]
 pub extern "C" fn array_add(ptr1: *const Array, ptr2: *const Array) -> *mut Array {
     let arr1 = unsafe {
         assert!(!ptr1.is_null());
@@ -125,8 +135,8 @@ pub extern "C" fn array_concat(ptr1: *const Array, ptr2: *const Array) -> *mut A
 }
 
 #[no_mangle]
-pub extern "C" fn array_zeroes(len: i32) -> *mut Array {
-    let array = Array::zeroes(len as usize);
+pub extern "C" fn array_zeros(len: i32) -> *mut Array {
+    let array = Array::zeros(len as usize);
     Array::to_raw(array)
 }
 
@@ -139,8 +149,8 @@ pub extern "C" fn array_ones(len: i32) -> *mut Array {
 
 // Matrix
 #[no_mangle]
-pub extern "C" fn matrix_zeroes(rows: i32, cols: i32) -> *mut Matrix {
-    let mat = Matrix::zeroes(rows, cols);
+pub extern "C" fn matrix_zeros(rows: i32, cols: i32) -> *mut Matrix {
+    let mat = Matrix::zeros(rows, cols);
     Matrix::to_raw(mat)
 }
 

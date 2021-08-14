@@ -23,13 +23,6 @@ impl Array {
             arr: arr_slice.as_mut_ptr(),
         }
     }
-
-    fn from_slice(slice: &mut [f64], len: i32) -> Array {
-        Array {
-            len,
-            arr: slice.as_mut_ptr(),
-        }
-    }
     
     pub fn sum(&self) -> f64 {
         let mut s: f64 = 0.0;
@@ -42,6 +35,27 @@ impl Array {
         }
         mem::forget(v);
         s
+    }
+
+    pub fn scalar(&self, scal: f64) -> Array {
+        let result = unsafe {
+            let layout = Layout::array::<f64>(self.len as usize).unwrap();
+            let ptr = alloc(layout) as *mut f64;
+            std::slice::from_raw_parts_mut(ptr, self.len as usize)
+        };
+
+        let arr_slice = unsafe {
+            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
+        };
+
+        for i in 0..self.len as usize {
+            result[i] = scal * arr_slice[i];
+        }
+
+        Array {
+            arr: result.as_mut_ptr(),
+            len: self.len,
+        }
     }
 
     pub fn add(&self, other: &Array) -> Array {
@@ -202,7 +216,7 @@ impl Array {
         }
     }
 
-    pub fn zeroes(len: usize) -> Array {
+    pub fn zeros(len: usize) -> Array {
         Array::of(0.0, len)
     }
 

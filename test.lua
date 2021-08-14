@@ -13,6 +13,9 @@ function test_Array()
   local c = Array({3.0, 5.0, 8.0})
   print("c = ", c)
 
+  local scal = c:scalar(3.0)
+  print("scal = ", scal)
+
   local added = a + b
   print("added = ", added)
 
@@ -25,7 +28,7 @@ function test_Array()
   a = a + c
   print("a = ", a)
   
-  local z = Array:zeroes(3)
+  local z = Array:zeros(3)
   print("z = ", z)
 
   local o = Array:ones(3)
@@ -37,6 +40,15 @@ end
 function test_Matrix() 
   local m = Matrix:new({{1.0, 2.0}, {3.0, 4.0}})
   print("m = ", m)
+
+  local o = Matrix:ones(3, 3)
+  print("o = ", o)
+
+  local z = Matrix:zeros(2, 2)
+  print("z = ", z)
+
+  local i = Matrix:identity(5)
+  print("i = ", i)
 
   print("success!")
 end
