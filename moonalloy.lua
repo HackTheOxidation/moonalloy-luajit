@@ -96,31 +96,38 @@ function Array:print()
   rust_lib.array_print(self.array)
 end
 
-function Array:from(array, len)
-  setmetatable(self, Array)
-  self.array = array
-  self.len = len
-
-  return self
-end
-
 function Array:scalar(scal)
-  local array = Array:from(rust_lib.array_scalar(self.array, scal), self.len)
-  return array
+  local array = rust_lib.array_scalar(self.array, scal)
+
+  local result = setmetatable({}, Array)
+  result.array = array
+  result.len = self.len
+  result.__index = result
+  return result
 end
 
 function Array:add(other)
   assert(self.len == other.len, "ERROR: Arrays must have equal lengths.")
 
-  local array = Array:from(self.array + other.array, self.len)
-  return array
+  local array = self.array + other.array
+
+  local result = setmetatable({}, Array)
+  result.array = array
+  result.len = self.len
+  result.__index = result
+  return result
 end
 
 function Array:sub(other)
   assert(self.len == other.len, "ERROR: Arrays must have equal lengths.")
 
-  local array = Array:from(self.array - other.array, self.len)
-  return array
+  local array = self.array - other.array
+
+  local result = setmetatable({}, Array)
+  result.array = array
+  result.len = self.len
+  result.__index = result
+  return result
 end
 
 function Array:sum()
@@ -134,8 +141,13 @@ end
 function Array:mult(other)
   assert(self.len == other.len, "ERROR: Arrays must have equal lengths.")
 
-  local array = Array:from(self.array * other.array, self.len)
-  return array
+  local array = self.array * other.array
+
+  local result = setmetatable({}, Array)
+  result.array = array
+  result.len = self.len
+  result.__index = result
+  return result
 end
 
 function Array:dotp(other)
@@ -143,8 +155,13 @@ function Array:dotp(other)
 end
 
 function Array:concat(other)
-  local array = Array:from(self.array .. other.array, self.len + other.len)
-  return array
+  local array = self.array .. other.array
+
+  local result = setmetatable({}, Array)
+  result.array = array
+  result.len = self.len + other.len
+  result.__index = result
+  return result
 end
 
 function Array:tostring()

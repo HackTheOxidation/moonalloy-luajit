@@ -25,10 +25,11 @@ function test_Array()
   local subbed = a - c
   print("subbed = ", subbed)
 
-  --[[
   local conc = added .. subbed
   print("conc = ", conc)
-  ]]
+
+  local again = added + subbed
+  print("again = ", again)
 
   local a = a + c
   print("a = ", a)
@@ -42,8 +43,8 @@ function test_Array()
   local multed = b * c
   print("multed = ", multed)
 
-  local again = multed * a
-  print("again = ", again)
+  local again2 = multed * a
+  print("again2 = ", again2)
 
   print("Success!")
 end
@@ -87,7 +88,7 @@ end
 
 
 -- moonalloy.test_array()
-moonalloy.test_matrix()
--- test_Array()
+-- moonalloy.test_matrix()
+test_Array()
 -- test_Matrix()
 
