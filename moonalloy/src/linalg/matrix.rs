@@ -84,7 +84,7 @@ impl Matrix {
             result.push_str(format!("{:?}", slice).as_str());
             
             if i < (arr.len - 1) as usize {
-                result.push_str(", \n")
+                result.push_str(", \n ")
             }
         }
 
@@ -113,6 +113,35 @@ impl Matrix {
 
         for i in 0..self.rows as usize {
             result[i] = mat_slice1[i].add(&mat_slice2[i]);
+        }
+
+        Matrix {
+            rows: self.rows,
+            cols: self.cols,
+            arrays: result.as_mut_ptr(),
+        }
+    }
+
+    pub fn sub(&self, other: &Matrix) -> Matrix {
+        assert!(self.cols == other.cols, "ERROR - Matrix subtraction: Columns differ in dimensions.");
+        assert!(self.rows == other.rows, "ERROR - Matrix subtraction: Rows differ in dimensions.");
+
+        let result = unsafe {
+            let layout = Layout::array::<Array>(self.rows as usize).unwrap();
+            let ptr = alloc(layout);
+            std::slice::from_raw_parts_mut(ptr as *mut Array, self.rows as usize)
+        };
+
+        let mat_slice1 = unsafe {
+            std::slice::from_raw_parts_mut(self.arrays, self.rows as usize)
+        };
+
+        let mat_slice2 = unsafe {
+            std::slice::from_raw_parts_mut(other.arrays, other.rows as usize)
+        };
+
+        for i in 0..self.rows as usize {
+            result[i] = mat_slice1[i].sub(&mat_slice2[i]);
         }
 
         Matrix {

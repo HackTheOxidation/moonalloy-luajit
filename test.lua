@@ -59,12 +59,15 @@ function test_Matrix()
   local added = m + m2
   print("added = ", added)
 
+  local subbed = added - m2
+  print("subbed = ", subbed)
+
   print("Success!")
 end
 
 
 -- moonalloy.test_array()
 -- moonalloy.test_matrix()
-test_Array()
+-- test_Array()
 test_Matrix()
 

@@ -36,6 +36,7 @@ matrix_t* matrix_identity(int len);
 void matrix_print(matrix_t *mat);
 char* matrix_to_string(const matrix_t* mat);
 matrix_t* matrix_add(const matrix_t *mat1, const matrix_t *mat2);
+matrix_t* matrix_sub(const matrix_t *mat1, const matrix_t *mat2);
 
 ]]
 
@@ -198,6 +199,7 @@ local mat
 local mat_mt = {
   __index = mat,
   __add = function(m, n) return rust_lib.matrix_add(m, n) end,
+  __sub = function(m, n) return rust_lib.matrix_sub(m, n) end,
   __tostring = function(m) return ffi.string(rust_lib.matrix_to_string(m)) end,
 }
 
@@ -314,12 +316,24 @@ function Matrix:add(other)
   return matrix
 end
 
+function Matrix:sub(other)
+  assert(self.rows == other.rows, "ERROR: Matrices differ in number of rows.")
+  assert(self.cols == other.cols, "ERROR: Matrices differ in number of columns.")
+
+  local matrix = Matrix:from(self.rows, self.cols, self.matrix - other.matrix)
+  return matrix
+end
+
 Matrix.__tostring = function(m)
   return tostring(m.matrix)
 end
 
 Matrix.__add = function(m, n)
   return m:add(n)
+end
+
+Matrix.__sub = function(m, n)
+  return m:sub(n)
 end
 
 
