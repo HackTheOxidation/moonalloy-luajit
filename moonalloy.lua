@@ -35,6 +35,7 @@ matrix_t* matrix_ones(int rows, int cols);
 matrix_t* matrix_identity(int len);
 void matrix_print(matrix_t *mat);
 char* matrix_to_string(const matrix_t* mat);
+matrix_t* matrix_add(const matrix_t *mat1, const matrix_t *mat2);
 
 ]]
 
@@ -196,6 +197,7 @@ local mat
 
 local mat_mt = {
   __index = mat,
+  __add = function(m, n) return rust_lib.matrix_add(m, n) end,
   __tostring = function(m) return ffi.string(rust_lib.matrix_to_string(m)) end,
 }
 
@@ -219,17 +221,17 @@ end
 
 local function new_matrix(t) 
   local slice = {}
-  local rows
+  local cols
 
   assert(is_valid_matrix(t) == true, "Invalid table - Cannot be converted into a matrix: Asymmetric dimensions.")
 
   for i = 1, #t do
     slice[i] = new_array(t[i])
-    rows = #slice[i]
+    cols = #slice[i]
   end
 
   local length = "array_t[" .. #t .. "]"
-  local new = mat(rows, #slice, ffi.new(length, slice))
+  local new = mat(#slice, cols, ffi.new(length, slice))
   return new
 end
 
@@ -243,11 +245,11 @@ setmetatable(Matrix, {
     end,
   })
 
-function Matrix:new(t)
+function Matrix.new(t)
   local self = setmetatable({}, Matrix)
 
-  self.rows = #t[1]
-  self.cols = #t
+  self.rows = #t
+  self.cols = #t[1]
   self.matrix = new_matrix(t)
 
   return self
@@ -273,7 +275,7 @@ function Matrix:zeros(rows, cols)
   assert(rows > 0, "ERROR: Number of rows must be positive.")
   assert(cols > 0, "ERROR: Number of columns must be positive.")
 
-  local self = setmetatable(self, Matrix)
+  setmetatable(self, Matrix)
   self.matrix = rust_lib.matrix_zeros(rows, cols)
   self.rows = rows
   self.cols = cols
@@ -282,7 +284,10 @@ function Matrix:zeros(rows, cols)
 end
 
 function Matrix:ones(rows, cols)
-  local self = setmetatable(self, Matrix)
+  assert(rows > 0, "ERROR: Number of rows must be positive.")
+  assert(cols > 0, "ERROR: Number of columns must be positive.")
+
+  setmetatable(self, Matrix)
   self.matrix = rust_lib.matrix_ones(rows, cols)
   self.rows = rows
   self.cols = cols
@@ -291,7 +296,9 @@ function Matrix:ones(rows, cols)
 end
 
 function Matrix:identity(len)
-  local self = setmetatable(self, Matrix)
+  assert(len > 0, "ERROR: Cannot create an identity matrix smaller than 1x1.")
+
+  setmetatable(self, Matrix)
   self.matrix = rust_lib.matrix_identity(len)
   self.rows = len
   self.cols = len
@@ -299,8 +306,20 @@ function Matrix:identity(len)
   return self
 end
 
+function Matrix:add(other)
+  assert(self.rows == other.rows, "ERROR: Matrices differ in number of rows.")
+  assert(self.cols == other.cols, "ERROR: Matrices differ in number of columns.")
+
+  local matrix = Matrix:from(self.rows, self.cols, self.matrix + other.matrix)
+  return matrix
+end
+
 Matrix.__tostring = function(m)
   return tostring(m.matrix)
+end
+
+Matrix.__add = function(m, n)
+  return m:add(n)
 end
 
 

@@ -187,3 +187,18 @@ pub extern "C" fn matrix_to_string(ptr: *const Matrix) -> *const c_char {
     std::mem::forget(c_str);
     result
 }
+
+#[no_mangle]
+pub extern "C" fn matrix_add(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut Matrix {
+    let mat1 = unsafe {
+        assert!(!ptr1.is_null());
+        &*ptr1
+    };
+
+    let mat2 = unsafe {
+        assert!(!ptr2.is_null());
+        &*ptr2
+    };
+
+    Matrix::to_raw(mat1.add(mat2))
+}

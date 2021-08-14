@@ -5,13 +5,16 @@ function test_Array()
   local arg = {1.0, 2.0, 3.0}
 
   local a = Array.new(arg)
-  print("a = ", a)
+  print("a = ", a, ", ", a.len)
 
   local b = Array.new({2.0, 3.0, 5.0})
   print("b = ", b)
 
   local c = Array({3.0, 5.0, 8.0})
   print("c = ", c)
+
+  local d = Array({1.0, 1.0, 1.0})
+  print("d = ", d)
 
   local scal = c:scalar(3.0)
   print("scal = ", scal)
@@ -34,12 +37,15 @@ function test_Array()
   local o = Array:ones(3)
   print("o = ", o)
 
-  print("success!")
+  print("Success!")
 end
 
 function test_Matrix() 
-  local m = Matrix:new({{1.0, 2.0}, {3.0, 4.0}})
+  local m = Matrix({{1.0, 2.0}, {3.0, 4.0}})
   print("m = ", m)
+
+  local m2 = Matrix({{2.0, 3.0}, {5.0, 8.0}})
+  print("m2 = ", m2)
 
   local o = Matrix:ones(3, 3)
   print("o = ", o)
@@ -50,13 +56,15 @@ function test_Matrix()
   local i = Matrix:identity(5)
   print("i = ", i)
 
-  print("success!")
+  local added = m + m2
+  print("added = ", added)
+
+  print("Success!")
 end
 
--- Test imported 
 
 -- moonalloy.test_array()
 -- moonalloy.test_matrix()
--- test_Array()
+test_Array()
 test_Matrix()
 
