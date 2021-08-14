@@ -46,6 +46,9 @@ function test_Array()
   local again2 = multed * a
   print("again2 = ", again2)
 
+  local infered = a * 2.0
+  print("infered = ", infered)
+
   print("Success!")
 end
 
@@ -85,6 +88,9 @@ function test_Matrix()
 
   m = m + m2
   print("m = m + m2 = ", m)
+
+  local infered = m * 2.0
+  print("infered = ", infered)
 
   print("Success!")
 end

@@ -201,7 +201,13 @@ Array.__len = function(a)
 end
 
 Array.__mul = function(a, b)
-  return a:mult(b)
+  if (type(a) == "number") then
+    return b:scalar(a)
+  elseif (type(b) == "number") then
+    return a:scalar(b)
+  else
+    return a:mult(b)
+  end
 end
 
 Array.__concat = function(a, b)
@@ -416,7 +422,13 @@ Matrix.__sub = function(m, n)
 end
 
 Matrix.__mul = function(m, n)
-  return m:mult(n)
+  if (type(m) == "number") then
+    return n:scalar(m)
+  elseif (type(n) == "number") then
+    return m:scalar(n)
+  else
+    return m:mult(n)
+  end
 end
 
 
