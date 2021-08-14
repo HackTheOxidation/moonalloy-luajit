@@ -402,8 +402,11 @@ function moonalloy.test_array()
   local add_again = added + a2
   print("add_again = added + a2 = ", add_again)
 
+  a = a + added
+  print("a = a + added = ", a)
+
   local mult_again = multed * a
-  print("mult_again = multed * a = ", mult_again)
+  print("mult_again = multed * added = ", mult_again)
 
   -- For debugging
   print("Success!")
@@ -424,6 +427,9 @@ function moonalloy.test_matrix()
 
   local multed = m * m
   print("multed = ", multed)
+
+  m = m + added
+  print("m = m + added = ", m)
 
   -- For debugging
   print("Success!")

@@ -1,6 +1,6 @@
 pub mod linalg;
 
-use crate::linalg::Array;
+use crate::linalg::array::Array;
 use crate::linalg::matrix::Matrix;
 use std::ffi::CString;
 use std::os::raw::c_char;

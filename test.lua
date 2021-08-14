@@ -25,8 +25,10 @@ function test_Array()
   local subbed = a - c
   print("subbed = ", subbed)
 
+  --[[
   local conc = added .. subbed
   print("conc = ", conc)
+  ]]
 
   local a = a + c
   print("a = ", a)
@@ -40,7 +42,7 @@ function test_Array()
   local multed = b * c
   print("multed = ", multed)
 
-  local again = multed * added
+  local again = multed * a
   print("again = ", again)
 
   print("Success!")

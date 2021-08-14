@@ -2,6 +2,8 @@ use crate::Array;
 
 use std::fmt::*;
 use std::alloc::{alloc, Layout};
+
+#[derive(Debug)]
 #[repr(C)]
 pub struct Matrix {
     rows: i32,
@@ -10,17 +12,21 @@ pub struct Matrix {
 }
 
 impl Matrix {
-    pub fn new() -> Matrix {
-        let mat_slice = unsafe {
-            let layout = Layout::array::<Array>(0).unwrap();
-            let ptr = alloc(layout);
-            std::slice::from_raw_parts_mut(ptr as *mut Array, 0)
-        };
+    fn is_valid_slice(slice: &mut [Array]) -> bool {
+        let len = slice[0].len;
+        for i in 1..slice.len() {
+            assert!(len == slice[i].len);
+        }
 
+        true
+    }
+
+    pub fn new(slice: &mut [Array]) -> Matrix {
+        assert!(Matrix::is_valid_slice(slice));
         Matrix {
-            rows: 0,
-            cols: 0,
-            arrays: mat_slice.as_mut_ptr(),
+            rows: slice.len() as i32,
+            cols: slice[0].len,
+            arrays: slice.as_mut_ptr(),
         }
     }
 
@@ -261,6 +267,22 @@ impl Matrix {
         }
     }
 
+    pub fn get(&self, i: usize, j: usize) -> f64 {
+        let slice = unsafe {
+            std::slice::from_raw_parts_mut(self.arrays, self.rows as usize)
+        };
+
+        slice[i].get(j)
+    }
+
+    pub fn set(&self, val: f64, i: usize, j: usize) {
+        let slice = unsafe {
+            std::slice::from_raw_parts_mut(self.arrays, self.rows as usize)
+        };
+
+        slice[i].set(val, j);
+    }
+
     pub fn to_raw(mat: Matrix) -> *mut Matrix {
         Box::into_raw(Box::new(mat))
     }
@@ -273,3 +295,127 @@ impl Display for Matrix {
     }
 }  
 
+impl PartialEq for Matrix {
+    fn eq(&self, other: &Self) -> bool {
+        if self.rows != other.rows {
+            return false;
+        }
+
+        if self.cols != other.cols {
+            return false;
+        }
+
+        let slice1 = unsafe {
+            std::slice::from_raw_parts_mut(self.arrays, self.rows as usize)
+        };
+
+        let slice2 = unsafe {
+            std::slice::from_raw_parts_mut(other.arrays, other.rows as usize)
+        };
+
+        for i in 0..self.rows as usize {
+            if slice1[i] != slice2[i] {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn zeros() {
+        let z = Matrix::zeros(2, 2);
+        let r = Matrix::new(&mut [Array::from(&mut [0.0, 0.0]), Array::from(&mut [0.0, 0.0])]);
+
+        assert_eq!(r, z);
+    }
+
+    #[test]
+    fn ones() {
+        let o = Matrix::ones(2, 2);
+        let r = Matrix::new(&mut [Array::from(&mut [1.0, 1.0]), Array::from(&mut [1.0, 1.0])]);
+
+        assert_eq!(r, o);
+    }
+
+    #[test]
+    fn identity() {
+        let i = Matrix::identity(2);
+        let r = Matrix::new(&mut [Array::from(&mut [1.0, 0.0]), Array::from(&mut [0.0, 1.0])]);
+
+        assert_eq!(r, i);
+    }
+
+    #[test]
+    fn add() {
+        let a = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 5.0])]);
+        let b = Matrix::new(&mut [Array::from(&mut [2.0, 3.0]), Array::from(&mut [5.0, 8.0])]);
+        let r = Matrix::new(&mut [Array::from(&mut [3.0, 5.0]), Array::from(&mut [8.0, 13.0])]);
+        
+        assert_eq!(r, a.add(&b));
+    }
+
+    #[test]
+    fn sub() {
+        let a = Matrix::new(&mut [Array::from(&mut [3.0, 5.0]), Array::from(&mut [8.0, 13.0])]);
+        let b = Matrix::new(&mut [Array::from(&mut [2.0, 3.0]), Array::from(&mut [5.0, 8.0])]);
+        let r = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 5.0])]);
+        
+        assert_eq!(r, a.sub(&b));
+    }
+
+    #[test]
+    fn scalar() {
+        let a = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 5.0])]);
+        let r = Matrix::new(&mut [Array::from(&mut [2.0, 4.0]), Array::from(&mut [6.0, 10.0])]);
+
+        assert_eq!(r, a.scalar(2.0));
+    }
+
+    #[test]
+    fn elem_mult() {
+        let a = Matrix::new(&mut [Array::from(&mut [3.0, 5.0]), Array::from(&mut [8.0, 13.0])]);
+        let b = Matrix::new(&mut [Array::from(&mut [2.0, 3.0]), Array::from(&mut [5.0, 8.0])]);
+        let r = Matrix::new(&mut [Array::from(&mut [6.0, 15.0]), Array::from(&mut [40.0, 104.0])]);
+        
+        assert_eq!(r, a.elem_mult(&b));
+    }
+
+    #[test]
+    fn mult() {
+        let a = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 4.0])]);
+        let r = Matrix::new(&mut [Array::from(&mut [7.0, 10.0]), Array::from(&mut [15.0, 22.0])]);
+        
+        assert_eq!(r, a.mult(&a));
+    }
+
+    #[test]
+    fn transpose() {
+        let a = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 4.0])]);
+        let r = Matrix::new(&mut [Array::from(&mut [1.0, 3.0]), Array::from(&mut [2.0, 4.0])]);
+        
+        assert_eq!(r, a.transpose());
+    }
+
+    #[test]
+    fn get() {
+        let a = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 4.0])]);
+        
+        assert_eq!(3.0, a.get(1, 0));
+    }
+
+    #[test]
+    fn set() {
+        let a = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 4.0])]);
+        let r = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 8.0])]);
+
+        a.set(8.0, 1, 1);
+
+        assert_eq!(r, a);
+    }
+}
