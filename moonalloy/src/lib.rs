@@ -1,4 +1,5 @@
 pub mod linalg;
+pub mod wrangling;
 
 use crate::linalg::array::Array;
 use crate::linalg::matrix::Matrix;
