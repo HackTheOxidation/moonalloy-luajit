@@ -2,8 +2,9 @@ use crate::Array;
 
 use std::fmt::*;
 use std::alloc::{alloc, Layout};
+use std::ops::{Deref, DerefMut};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[repr(C)]
 pub struct Matrix {
     rows: i32,
@@ -323,6 +324,23 @@ impl PartialEq for Matrix {
     }
 }
 
+impl Deref for Matrix {
+    type Target = [Array];
+    fn deref(&self) -> &[Array] {
+        unsafe {
+            std::slice::from_raw_parts(self.arrays, self.rows as usize)
+        }
+    }
+}
+
+impl DerefMut for Matrix {
+    fn deref_mut(&mut self) -> &mut [Array] {
+        unsafe {
+            std::slice::from_raw_parts_mut(self.arrays, self.rows as usize)
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -417,5 +435,17 @@ mod test {
         a.set(8.0, 1, 1);
 
         assert_eq!(r, a);
+    }
+
+    #[test]
+    fn iterator() {
+        let a = Matrix::new(&mut [Array::from(&mut [1.0, 2.0]), Array::from(&mut [3.0, 4.0])]);
+        let first = Array::from(&mut [1.0, 2.0]);
+        let second = Array::from(&mut [3.0, 4.0]);
+
+        let mut it = a.iter();
+
+        assert_eq!(it.next(), Some(first).as_ref());
+        assert_eq!(it.next(), Some(second).as_ref());
     }
 }

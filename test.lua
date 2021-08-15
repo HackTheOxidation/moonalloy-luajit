@@ -98,6 +98,6 @@ end
 
 -- moonalloy.test_array()
 -- moonalloy.test_matrix()
--- test_Array()
-test_Matrix()
+test_Array()
+-- test_Matrix()
 

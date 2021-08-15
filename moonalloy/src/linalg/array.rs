@@ -1,7 +1,8 @@
 use std::fmt::*;
 use std::alloc::{alloc, Layout};
+use std::ops::{Deref, DerefMut};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[repr(C)]
 pub struct Array {
     pub len: i32,
@@ -258,6 +259,24 @@ impl PartialEq for Array {
     }
 }
 
+impl Deref for Array {
+    type Target = [f64];
+
+    fn deref(&self) -> &[f64] {
+        unsafe {
+            std::slice::from_raw_parts(self.arr, self.len as usize)
+        }
+    }
+}
+
+impl DerefMut for Array {
+    fn deref_mut(&mut self) -> &mut [f64] {
+        unsafe {
+            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -360,5 +379,15 @@ mod test {
         a.set(5.0, 0);
 
         assert_eq!(r, a);
+    }
+
+    #[test]
+    fn iterator() {
+        let a = Array::from(&mut [1.0, 2.0, 3.0]);
+        let mut it = a.iter();
+
+        assert_eq!(it.next(), Some(1.0 as f64).as_ref());
+        assert_eq!(it.next(), Some(2.0 as f64).as_ref());
+        assert_eq!(it.next(), Some(3.0 as f64).as_ref());
     }
 }
