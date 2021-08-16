@@ -32,6 +32,29 @@ pub struct DataTable {
 }
 
 impl DataCell {
+    pub fn from(string: String) -> DataCell {
+        match string.parse::<i32>() {
+            Ok(num) => return DataCell::Int(num),
+            Err(_) => (),
+        };
+
+        match string.parse::<f64>() {
+            Ok(num) => return DataCell::Float(num),
+            Err(_) => (),
+        };
+
+        match string.parse::<bool>() {
+            Ok(b) => return DataCell::Bool(b),
+            Err(_) => (),
+        };
+
+        if string.as_str() == "" {
+            return DataCell::Empty;
+        } else {
+            return DataCell::Str(CString::new(string.as_str()).unwrap());
+        }
+    }
+
     pub fn to_string(&self) -> String {
         match self {
             Self::Int(num) => num.to_string(),
@@ -104,6 +127,15 @@ impl DataTable {
             cols: data[0].len(),
             labels: labels.as_mut_ptr(),
             data: data_rows.as_mut_ptr(),
+        }
+    }
+
+    pub fn from(slice: &mut [DataRow], labels: &mut [CString]) -> DataTable {
+        DataTable {
+            rows: slice.len(),
+            cols: slice[0].len(),
+            labels: labels.as_mut_ptr(),
+            data: slice.as_mut_ptr(),
         }
     }
 

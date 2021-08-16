@@ -9,3 +9,5 @@ name = "moonalloy"
 crate-type = ["cdylib"]
 
 [dependencies]
+csv = "1.1"
+office = "0.8.1"
