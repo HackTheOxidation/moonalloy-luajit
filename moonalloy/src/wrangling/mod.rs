@@ -94,7 +94,7 @@ impl DataRow {
         let entries = unsafe {
             std::slice::from_raw_parts_mut(self.entries, self.length)
         };
-        
+
         entries[index] = val;
     }
 
@@ -111,7 +111,7 @@ impl DataTable {
     pub fn new(data: &mut [&mut [DataCell]], labels: &mut [CString]) -> DataTable {
         assert!(DataTable::is_valid_slice(data));
         assert!(labels.len() == data[0].len());
-         
+
         let data_rows = unsafe {
             let layout = Layout::array::<DataRow>(data.len()).unwrap();
             let ptr = alloc(layout);
@@ -190,12 +190,16 @@ impl DataTable {
 
         let mut res = String::from("");
         res = res + format!("{:?}\n", labels).as_str();
-        
+
         for elem in rows {
             res = res + format!("{}\n", elem).as_str();
         }
 
         res
+    }
+
+    pub fn to_raw(dt: DataTable) -> *mut DataTable {
+        Box::into_raw(Box::new(dt))
     }
 }
 

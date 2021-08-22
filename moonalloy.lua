@@ -7,6 +7,7 @@ local ffi = require("ffi")
 -- Define the structs and functions to search for in the shared library
 ffi.cdef[[
 
+// Array
 typedef struct {
   int len;
   double *arr;
@@ -24,6 +25,7 @@ char* array_to_string(const array_t* arr);
 array_t* array_zeros(int len);
 array_t* array_ones(int len);
 
+// Matrix
 typedef struct {
   int rows;
   int cols;
@@ -41,6 +43,9 @@ matrix_t* matrix_elem_mult(const matrix_t *mat1, const matrix_t *mat2);
 matrix_t* matrix_transpose(const matrix_t *mat);
 matrix_t* matrix_mult(const matrix_t *mat1, const matrix_t *mat2);
 matrix_t* matrix_scalar(const matrix_t *mat, double scal);
+
+
+// DataTable
 
 ]]
 
@@ -64,7 +69,7 @@ local arr_mt = {
 -- Creates the metatype with functions and operators
 arr = ffi.metatype("array_t", arr_mt)
 
-local function new_array(t) 
+local function new_array(t)
   local length = "double[" .. #t .. "]"
   local new = arr(#t, ffi.new(length, t))
   return new
@@ -248,7 +253,7 @@ local function is_valid_matrix(t)
   return true
 end
 
-local function new_matrix(t) 
+local function new_matrix(t)
   local slice = {}
   local cols
 
@@ -474,7 +479,7 @@ function moonalloy.test_array()
   print("Success!")
 end
 
-function moonalloy.test_matrix() 
+function moonalloy.test_matrix()
   local m = new_matrix({{1.0, 2.0}, {3.0, 4.0}})
   print("m = ", m)
 
