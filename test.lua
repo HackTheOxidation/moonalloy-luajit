@@ -95,9 +95,16 @@ function test_Matrix()
   print("Success!")
 end
 
+function test_DataTable()
+  print("Testing DataTable class...")
+  local dt = DataTable("test.csv")
 
-moonalloy.test_array()
-moonalloy.test_matrix()
-test_Array()
-test_Matrix()
+  print("Success")
+end
 
+
+-- moonalloy.test_array()
+-- moonalloy.test_matrix()
+-- test_Array()
+-- test_Matrix()
+test_DataTable()

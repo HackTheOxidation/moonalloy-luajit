@@ -1,9 +1,8 @@
 pub mod reader;
 
-use std::ffi::CString;
 use std::fmt::*;
 use std::alloc::{alloc, Layout};
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
 
 #[derive(Debug, Clone)]
 #[repr(C)]
@@ -11,7 +10,7 @@ pub enum DataCell {
     Int(i32),
     Float(f64),
     Bool(bool),
-    Str(CString),
+    Str(String),
     Empty,
 }
 
@@ -19,7 +18,7 @@ pub enum DataCell {
 #[repr(C)]
 pub struct DataRow {
     length: usize,
-    entries: *mut DataCell,
+    entries: *const DataCell,
 }
 
 #[derive(Debug, Clone)]
@@ -27,8 +26,8 @@ pub struct DataRow {
 pub struct DataTable {
     rows: usize,
     cols: usize,
-    labels: *mut CString,
-    data: *mut DataRow,
+    labels: *const String,
+    data: *const DataRow,
 }
 
 impl DataCell {
@@ -51,7 +50,7 @@ impl DataCell {
         if string.as_str() == "" {
             return DataCell::Empty;
         } else {
-            return DataCell::Str(CString::new(string.as_str()).unwrap());
+            return DataCell::Str(string);
         }
     }
 
@@ -60,17 +59,17 @@ impl DataCell {
             Self::Int(num) => num.to_string(),
             Self::Float(num) => num.to_string(),
             Self::Bool(b) => b.to_string(),
-            Self::Str(cs) => String::from(cs.to_str().unwrap()),
+            Self::Str(cs) => String::from(cs.as_str()),
             Self::Empty => String::from("-Empty-")
         }
     }
 }
 
 impl DataRow {
-    fn new(entries: &mut [DataCell]) -> DataRow {
+    fn new(entries: &[DataCell]) -> DataRow {
         DataRow {
             length: entries.len(),
-            entries: entries.as_mut_ptr(),
+            entries: entries.as_ptr(),
         }
     }
 
@@ -82,20 +81,10 @@ impl DataRow {
         assert!(index < self.length);
 
         let entries = unsafe {
-            std::slice::from_raw_parts_mut(self.entries, self.length)
+            std::slice::from_raw_parts(self.entries, self.length)
         };
 
         entries[index].clone()
-    }
-
-    fn set(&self, val: DataCell, index: usize) {
-        assert!(index < self.length);
-
-        let entries = unsafe {
-            std::slice::from_raw_parts_mut(self.entries, self.length)
-        };
-
-        entries[index] = val;
     }
 
     pub fn to_string(&self) -> String {
@@ -108,7 +97,7 @@ impl DataRow {
 }
 
 impl DataTable {
-    pub fn new(data: &mut [&mut [DataCell]], labels: &mut [CString]) -> DataTable {
+    pub fn new(data: &[&[DataCell]], labels: &[String]) -> DataTable {
         assert!(DataTable::is_valid_slice(data));
         assert!(labels.len() == data[0].len());
 
@@ -125,21 +114,21 @@ impl DataTable {
         DataTable {
             rows: data.len(),
             cols: data[0].len(),
-            labels: labels.as_mut_ptr(),
-            data: data_rows.as_mut_ptr(),
+            labels: labels.as_ptr(),
+            data: data_rows.as_ptr(),
         }
     }
 
-    pub fn from(slice: &mut [DataRow], labels: &mut [CString]) -> DataTable {
+    pub fn from(slice: &[DataRow], labels: &[String]) -> DataTable {
         DataTable {
             rows: slice.len(),
             cols: slice[0].len(),
-            labels: labels.as_mut_ptr(),
-            data: slice.as_mut_ptr(),
+            labels: labels.as_ptr(),
+            data: slice.as_ptr(),
         }
     }
 
-    fn is_valid_slice(slice: &mut [&mut [DataCell]]) -> bool {
+    fn is_valid_slice(slice: &[&[DataCell]]) -> bool {
         if slice.is_empty() {
             return false;
         }
@@ -159,26 +148,15 @@ impl DataTable {
         assert!(j < self.cols);
 
         let data_rows = unsafe {
-            std::slice::from_raw_parts_mut(self.data, self.rows)
+            std::slice::from_raw_parts(self.data, self.rows)
         };
 
         data_rows[i].get(j)
     }
 
-    pub fn set(&self, val: DataCell, i: usize, j: usize) {
-        assert!(i < self.rows);
-        assert!(j < self.cols);
-
-        let data_rows = unsafe {
-            std::slice::from_raw_parts_mut(self.data, self.rows)
-        };
-
-        data_rows[i].set(val, j);
-    }
-
-    pub fn get_labels(&self) -> &mut [CString] {
+    pub fn get_labels(&self) -> &[String] {
         unsafe {
-            std::slice::from_raw_parts_mut(self.labels, self.cols)
+            std::slice::from_raw_parts(self.labels, self.cols)
         }
     }
 
@@ -212,13 +190,6 @@ impl Deref for DataRow {
     }
 }
 
-impl DerefMut for DataRow {
-    fn deref_mut(&mut self) -> &mut [DataCell] {
-        unsafe {
-            std::slice::from_raw_parts_mut(self.entries, self.len())
-        }
-    }
-}
 
 impl Deref for DataTable {
     type Target = [DataRow];
@@ -229,13 +200,6 @@ impl Deref for DataTable {
     }
 }
 
-impl DerefMut for DataTable {
-    fn deref_mut(&mut self) -> &mut [DataRow] {
-        unsafe {
-            std::slice::from_raw_parts_mut(self.data, self.rows)
-        }
-    }
-}
 
 impl Display for DataCell {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -257,5 +221,23 @@ impl Display for DataTable {
 
 #[cfg(test)]
 mod test {
+    use super::*;
 
+    #[test]
+    fn create_new_datatable() {
+        let dt = DataTable::new(
+            &mut [
+                &mut [DataCell::Float(1.0), DataCell::Float(2.0)],
+                &mut [DataCell::Float(3.0), DataCell::Float(4.0)]
+            ],
+            &mut [String::from("attr1"), String::from("attr2")]
+            );
+
+        let result = match dt.get(1,0) {
+            DataCell::Float(num) => num,
+            _ => panic!("Not a float"),
+        };
+
+        assert_eq!(3.0, result);
+    }
 }

@@ -29,7 +29,7 @@ impl Array {
             arr: slice.as_mut_ptr(),
         }
     }
-    
+
     pub fn sum(&self) -> f64 {
         let mut s: f64 = 0.0;
         let v = unsafe {
@@ -177,7 +177,7 @@ impl Array {
         let array_slice = unsafe {
             std::slice::from_raw_parts_mut(self.arr, self.len as usize)
         };
-        
+
         format!("Array: {:?}", array_slice)
     }
 
@@ -261,7 +261,6 @@ impl PartialEq for Array {
 
 impl Deref for Array {
     type Target = [f64];
-
     fn deref(&self) -> &[f64] {
         unsafe {
             std::slice::from_raw_parts(self.arr, self.len as usize)
@@ -335,7 +334,7 @@ mod test {
     fn dotp() {
         let a = Array::from(&mut [1.0, 2.0, 3.0]);
         let b = Array::from(&mut [2.0, 3.0, 5.0]);
-        
+
         assert_eq!(23.0, a.dotp(&b));
     }
 
@@ -381,13 +380,4 @@ mod test {
         assert_eq!(r, a);
     }
 
-    #[test]
-    fn iterator() {
-        let a = Array::from(&mut [1.0, 2.0, 3.0]);
-        let mut it = a.iter();
-
-        assert_eq!(it.next(), Some(1.0 as f64).as_ref());
-        assert_eq!(it.next(), Some(2.0 as f64).as_ref());
-        assert_eq!(it.next(), Some(3.0 as f64).as_ref());
-    }
 }

@@ -1,37 +1,12 @@
 local moonalloy = {{}}
+
 require('linalg/arrays')
 require('linalg/matrices')
+require('wrangling/datatables')
+
 
 -- Load the FFI module
 local ffi = require("ffi")
-
--- Define the structs and functions to search for in the shared library
-ffi.cdef[[
-
-// DataCell
-typedef struct {
-  int INT;
-  double FLOAT;
-  int BOOL;
-  char* STR;
-  void* EMPTY;
-} datacell_t;
-
-// DataRow
-typedef struct {
-  int length;
-  datacell_t* entries;
-} datarow_t;
-
-// DataTable
-typedef struct {
-  int rows;
-  int columns;
-  char* labels;
-  datarow_t* data;
-} datatable_t;
-
-]]
 
 -- Load the shared library from '.so'-file
 local rust_lib = ffi.load("./moonalloy/target/debug/libmoonalloy.so")
@@ -99,6 +74,10 @@ function moonalloy.test_matrix()
 
   -- For debugging
   print("Success!")
+end
+
+function moonalloy.test_datatable()
+
 end
 
 -- Return moonalloy to create the module (can now be used with "require")

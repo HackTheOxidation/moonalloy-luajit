@@ -8,6 +8,5 @@ edition = "2018"
 name = "moonalloy"
 crate-type = ["cdylib"]
 
-[dependencies]
-csv = "1.1"
-office = "0.8.1"
+[profile.bench]
+debug = true

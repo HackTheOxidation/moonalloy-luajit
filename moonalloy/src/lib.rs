@@ -7,6 +7,7 @@ use crate::wrangling::DataTable;
 use crate::wrangling::reader::read_csv;
 use std::ffi::CString;
 use std::os::raw::c_char;
+use std::panic::catch_unwind;
 
 // Array
 #[no_mangle]
@@ -270,10 +271,15 @@ pub extern "C" fn matrix_mult(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut 
     Matrix::to_raw(mat1.mult(mat2))
 }
 
+/*
 #[no_mangle]
 pub extern "C" fn datatable_read_from_csv(c_str: *mut c_char) -> *mut DataTable {
     let path = unsafe { CString::from_raw(c_str) };
-    let result = read_csv(String::from(path.to_str().unwrap()));
+    let path_ref = catch_unwind(|| path.to_str().unwrap()).unwrap();
+    let dt = read_csv(String::from(path_ref));
 
-    DataTable::to_raw(result)
+    println!("Returning result...");
+
+    DataTable::to_raw(dt)
 }
+*/
