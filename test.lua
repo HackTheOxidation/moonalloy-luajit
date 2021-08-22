@@ -1,4 +1,4 @@
-local moonalloy = require("moonalloy")
+local moonalloy = require("../moonalloy")
 
 
 function test_Array()
@@ -33,7 +33,7 @@ function test_Array()
 
   local a = a + c
   print("a = ", a)
-  
+
   local z = Array:zeros(3)
   print("z = ", z)
 
@@ -52,7 +52,7 @@ function test_Array()
   print("Success!")
 end
 
-function test_Matrix() 
+function test_Matrix()
   local m = Matrix({{1.0, 2.0}, {3.0, 4.0}})
   print("m = ", m)
 
@@ -96,8 +96,8 @@ function test_Matrix()
 end
 
 
--- moonalloy.test_array()
--- moonalloy.test_matrix()
+moonalloy.test_array()
+moonalloy.test_matrix()
 test_Array()
--- test_Matrix()
+test_Matrix()
 
