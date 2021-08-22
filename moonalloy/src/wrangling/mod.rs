@@ -176,7 +176,7 @@ impl DataTable {
         res
     }
 
-    pub fn to_raw(dt: DataTable) -> *mut DataTable {
+    pub fn to_raw(dt: DataTable) -> *const DataTable {
         Box::into_raw(Box::new(dt))
     }
 }
@@ -226,11 +226,11 @@ mod test {
     #[test]
     fn create_new_datatable() {
         let dt = DataTable::new(
-            &mut [
-                &mut [DataCell::Float(1.0), DataCell::Float(2.0)],
-                &mut [DataCell::Float(3.0), DataCell::Float(4.0)]
+            &[
+                &[DataCell::Float(1.0), DataCell::Float(2.0)],
+                &[DataCell::Float(3.0), DataCell::Float(4.0)]
             ],
-            &mut [String::from("attr1"), String::from("attr2")]
+            &[String::from("attr1"), String::from("attr2")]
             );
 
         let result = match dt.get(1,0) {

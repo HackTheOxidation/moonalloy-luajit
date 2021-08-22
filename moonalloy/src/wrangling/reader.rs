@@ -41,7 +41,6 @@ pub struct CSV {
 impl CSV {
     pub fn read_from_file(filename: String) -> CSV {
         let from_file = fs::read_to_string(filename).unwrap();
-        println!("{}\n\n len() = {}", from_file, from_file.len());
 
         if from_file.is_empty() {
             panic!("File is empty.");

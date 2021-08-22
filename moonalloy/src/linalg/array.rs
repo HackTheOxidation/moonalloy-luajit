@@ -380,4 +380,14 @@ mod test {
         assert_eq!(r, a);
     }
 
+    #[test]
+    fn iterator() {
+        let a = Array::from(&mut [1.0, 2.0, 3.0]);
+        let mut it = a.iter();
+
+        assert_eq!(*it.next().unwrap(), 1.0 as f64);
+        assert_eq!(*it.next().unwrap(), 2.0 as f64);
+        assert_eq!(*it.next().unwrap(), 3.0 as f64);
+    }
+
 }

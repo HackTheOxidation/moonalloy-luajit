@@ -271,15 +271,11 @@ pub extern "C" fn matrix_mult(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut 
     Matrix::to_raw(mat1.mult(mat2))
 }
 
-/*
 #[no_mangle]
-pub extern "C" fn datatable_read_from_csv(c_str: *mut c_char) -> *mut DataTable {
+pub extern "C" fn datatable_read_from_csv(c_str: *mut c_char) -> *const DataTable {
     let path = unsafe { CString::from_raw(c_str) };
     let path_ref = catch_unwind(|| path.to_str().unwrap()).unwrap();
     let dt = read_csv(String::from(path_ref));
 
-    println!("Returning result...");
-
     DataTable::to_raw(dt)
 }
-*/
