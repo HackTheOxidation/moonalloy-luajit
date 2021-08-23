@@ -7,8 +7,6 @@ pub fn read_csv(filename: String) -> DataTable {
 
     let (rows, cols) = csv.dimensions();
 
-    let labels = csv.labels.as_slice();
-
     let data = unsafe {
         let layout = Layout::array::<DataRow>(rows).unwrap();
         let ptr = alloc(layout);
@@ -29,8 +27,7 @@ pub fn read_csv(filename: String) -> DataTable {
         data[i] = DataRow::new(dr);
     }
 
-
-    DataTable::from(data, labels)
+    DataTable::from(data, csv.labels)
 }
 
 pub struct CSV {

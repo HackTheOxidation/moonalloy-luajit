@@ -3,18 +3,50 @@ local datatables = {{}}
 -- Load the FFI module
 local ffi = require("ffi")
 
+
 -- Define the structs and functions to search for in the shared library
 ffi.cdef[[
 
-// DataTable
-typedef struct {
-  int rows;
-  int cols;
-  char* labels;
-  void* data;
-} datatable_t;
+typedef enum DataCell_Tag {
+  Int,
+  Float,
+  Bool,
+  Str,
+  Empty,
+} DataCell_Tag;
 
-datatable_t* datatable_read_from_csv(char* path);
+typedef struct DataCell {
+  DataCell_Tag tag;
+  union {
+    struct {
+      int32_t int_;
+    };
+    struct {
+      double float_;
+    };
+    struct {
+      bool bool_;
+    };
+    struct {
+      char *str;
+    };
+  };
+} DataCell;
+
+typedef struct DataRow {
+  uintptr_t length;
+  const struct DataCell *entries;
+} DataRow;
+
+typedef struct DataTable {
+  uintptr_t rows;
+  uintptr_t cols;
+  char **labels;
+  const struct DataRow *data;
+} DataTable;
+
+const struct DataTable *datatable_read_from_csv(char *c_str);
+
 ]]
 
 -- Load the shared library from '.so'-file
@@ -26,7 +58,7 @@ local dt_mt = {
   __index = dt
 }
 
-dt = ffi.metatype("datatable_t", dt_mt)
+dt = ffi.metatype("DataTable", dt_mt)
 
 -- DataTable Wrapper Class
 DataTable = { rows = 0, cols = 0, labels = {}, data = nil }
