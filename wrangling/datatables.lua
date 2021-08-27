@@ -3,6 +3,9 @@ local datatables = {{}}
 -- Load the FFI module
 local ffi = require("ffi")
 
+--[[
+--
+--]]
 
 -- Define the structs and functions to search for in the shared library
 ffi.cdef[[
@@ -78,9 +81,8 @@ function DataTable.from_csv(path)
     return nil
   end
 
-  local type = "char[" .. (#path + 1) .."]"
-
-  self.data = rust_lib.datatable_read_from_csv(ffi.new(type, path))
+  local t = "char[" .. (#path + 1) .."]"
+  self.data = rust_lib.datatable_read_from_csv(ffi.new(t, path))
 
   return self
 end

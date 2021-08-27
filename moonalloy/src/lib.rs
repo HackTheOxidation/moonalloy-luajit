@@ -3,11 +3,10 @@ pub mod wrangling;
 
 use crate::linalg::array::Array;
 use crate::linalg::matrix::Matrix;
-use crate::wrangling::DataTable;
+use crate::wrangling::*;
 use crate::wrangling::reader::read_csv;
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-use std::panic::catch_unwind;
 
 // Array
 #[no_mangle]
@@ -273,9 +272,9 @@ pub extern "C" fn matrix_mult(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut 
 
 #[no_mangle]
 pub extern "C" fn datatable_read_from_csv(c_str: *mut c_char) -> *const DataTable {
-    let path = unsafe { CString::from_raw(c_str) };
-    let path_ref = catch_unwind(|| path.to_str().unwrap()).unwrap();
-    let dt = read_csv(String::from(path_ref));
+    let slice = unsafe { CStr::from_ptr(c_str) };
+    let path_str = slice.to_str().unwrap();
+    let dt = read_csv(String::from(path_str.to_string()));
 
     DataTable::to_raw(dt)
 }

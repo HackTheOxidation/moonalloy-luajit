@@ -69,7 +69,6 @@ impl CSV {
         let label_len = lines[0].len();
 
         for line in lines {
-            println!("line = {:?}, len() = {}", line, line.len());
             if line.len() != label_len {
                 return false;
             }
