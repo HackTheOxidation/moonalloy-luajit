@@ -1,7 +1,7 @@
 local moonalloy = require("../moonalloy")
 
 
-function test_Array()
+local function test_Array()
   local arg = {1.0, 2.0, 3.0}
 
   local a = Array.new(arg)
@@ -31,7 +31,7 @@ function test_Array()
   local again = added + subbed
   print("again = ", again)
 
-  local a = a + c
+  a = a + c
   print("a = ", a)
 
   local z = Array:zeros(3)
@@ -52,7 +52,7 @@ function test_Array()
   print("Success!")
 end
 
-function test_Matrix()
+local function test_Matrix()
   local m = Matrix({{1.0, 2.0}, {3.0, 4.0}})
   print("m = ", m)
 
@@ -95,9 +95,13 @@ function test_Matrix()
   print("Success!")
 end
 
-function test_DataTable()
+local function test_DataTable()
   print("Testing DataTable class...")
   local dt = DataTable("test.csv")
+  print("dt = ", dt)
+  -- print("dt = ", dt)
+
+  -- print("labels = ", dt:get_labels())
 
   print("Success")
 end

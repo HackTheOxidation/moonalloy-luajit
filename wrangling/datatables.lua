@@ -3,10 +3,6 @@ local datatables = {{}}
 -- Load the FFI module
 local ffi = require("ffi")
 
---[[
---
---]]
-
 -- Define the structs and functions to search for in the shared library
 ffi.cdef[[
 
@@ -48,8 +44,9 @@ typedef struct DataTable {
   const struct DataRow *data;
 } DataTable;
 
-const struct DataTable *datatable_read_from_csv(char *c_str);
-
+struct DataTable *datatable_read_from_csv(char *c_str);
+char* datatable_to_string(DataTable* dt);
+char* datatable_get_labels(DataTable* dt);
 ]]
 
 -- Load the shared library from '.so'-file
@@ -58,7 +55,8 @@ local rust_lib = ffi.load("./moonalloy/target/debug/libmoonalloy.so")
 local dt
 
 local dt_mt = {
-  __index = dt
+  __index = dt,
+  __tostring = function(d) return ffi.string(rust_lib.datatable_to_string(d)) end,
 }
 
 dt = ffi.metatype("DataTable", dt_mt)
@@ -85,6 +83,18 @@ function DataTable.from_csv(path)
   self.data = rust_lib.datatable_read_from_csv(ffi.new(t, path))
 
   return self
+end
+
+function DataTable:tostring()
+  return tostring(self)
+end
+
+function DataTable:get_labels()
+  return ffi.string(rust_lib.datatable_get_labels(self.data))
+end
+
+DataTable.__tostring = function(d)
+  return tostring(d.data)
 end
 
 return datatables

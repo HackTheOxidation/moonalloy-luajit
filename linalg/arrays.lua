@@ -134,7 +134,7 @@ function Array:mult(other)
 end
 
 function Array:dotp(other)
-  return rust_lib.array_dotp(self.array, self.array)
+  return rust_lib.array_dotp(self.array, other.array)
 end
 
 function Array:concat(other)

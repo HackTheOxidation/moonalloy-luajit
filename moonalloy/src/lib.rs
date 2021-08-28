@@ -278,3 +278,29 @@ pub extern "C" fn datatable_read_from_csv(c_str: *mut c_char) -> *const DataTabl
 
     DataTable::to_raw(dt)
 }
+
+#[no_mangle]
+pub extern "C" fn datatable_to_string(ptr: *const DataTable) -> *const c_char {
+    let dt = unsafe {
+        assert!(!ptr.is_null());
+        &*ptr
+    };
+
+    let c_str = CString::new(dt.to_string().as_str()).unwrap();
+    let result = c_str.as_ptr();
+    std::mem::forget(c_str);
+    result
+}
+
+#[no_mangle]
+pub extern "C" fn datatable_get_labels(ptr: *const DataTable) -> *const c_char {
+    let dt = unsafe {
+        assert!(!ptr.is_null());
+        &*ptr
+    };
+
+    let c_str = CString::new(dt.get_labels_as_string().as_str()).unwrap();
+    let result = c_str.as_ptr();
+    std::mem::forget(c_str);
+    result
+}

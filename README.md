@@ -30,7 +30,7 @@ Rust was chosen as the backend language since it is fast (similar to C/C++),
 but it has more safety features and a more modern toolchain than C/C++
 that works out-of-box. It also has a built-in FFI that is compatible with C/C++.
 
-Lua was chosen as the frontend language since it is one one of
-the fastest interpreted scripting languages when using a single thread.
+Lua was chosen as the frontend language since it is a fast,
+interpreted scripting language similar to python.
 It also supports operator overloading and object-oriented programming,
 which makes it pleasant to implement a library with an intuitive syntax.

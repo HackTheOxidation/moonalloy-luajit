@@ -4,7 +4,7 @@ use std::fmt::*;
 use std::alloc::{alloc, Layout};
 use std::ops::Deref;
 use std::os::raw::c_char;
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 
 #[derive(Debug, Clone)]
 #[repr(C)]
@@ -65,7 +65,7 @@ impl DataCell {
             Self::Bool(b) => b.to_string(),
             Self::Str(cs) => {
                 let c_string = unsafe {
-                    CString::from_raw(*cs)
+                    CStr::from_ptr(*cs)
                 };
                 c_string.to_str().unwrap().to_string()
             },
@@ -192,7 +192,9 @@ impl DataTable {
         let v = unsafe {
             Vec::from_raw_parts(self.labels, self.cols, self.cols)
         };
+
         let mut strings: Vec<String> = Vec::with_capacity(self.cols);
+
         v.iter().for_each(|ptr| {
             let string = unsafe {
                 CString::from_raw(ptr.clone())
@@ -202,6 +204,14 @@ impl DataTable {
         std::mem::forget(v);
 
         strings
+    }
+
+    pub fn get_labels_as_string(&self) -> String {
+        let labels = self.get_labels();
+
+        let res = format!("{:?}", labels).to_string();
+        std::mem::forget(labels);
+        res
     }
 
     pub fn to_string(&self) -> String {
@@ -216,6 +226,7 @@ impl DataTable {
         for elem in rows {
             res = res + format!("{}\n", elem).as_str();
         }
+        std::mem::forget(labels);
 
         res
     }
