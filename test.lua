@@ -99,9 +99,9 @@ local function test_DataTable()
   print("Testing DataTable class...")
   local dt = DataTable("test.csv")
   print("dt = ", dt)
-  -- print("dt = ", dt)
+  print("dt = ", dt)
 
-  -- print("labels = ", dt:get_labels())
+  print("labels = ", dt:get_labels())
 
   print("Success")
 end
