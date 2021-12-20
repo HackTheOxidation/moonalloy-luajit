@@ -16,8 +16,7 @@ The aim of the project is to a all-in-one, go-to library for scientific computin
 and data analysis. The functionality should include:
 
 * Tools for numeric linear algebra
-* Tools for importing and exporting data in table formats (.csv, .xlsx)
-* Tools for wrangling data
+* Tools for computational science
 * Tools for statistics and machine learning for data analysis
 
 In short, it aims to have similar functionality as NumPy/SciPy and Pandas.

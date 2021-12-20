@@ -2,7 +2,6 @@ local moonalloy = {{}}
 
 require('linalg/arrays')
 require('linalg/matrices')
-require('wrangling/datatables')
 
 
 -- Load the FFI module
@@ -50,7 +49,7 @@ function moonalloy.test_array()
   print("mult_again = multed * added = ", mult_again)
 
   -- For debugging
-  print("Success!")
+  print("\nSuccess!\n\n")
 end
 
 function moonalloy.test_matrix()
@@ -73,11 +72,7 @@ function moonalloy.test_matrix()
   print("m = m + added = ", m)
 
   -- For debugging
-  print("Success!")
-end
-
-function moonalloy.test_datatable()
-
+  print("\nSuccess!\n\n")
 end
 
 -- Return moonalloy to create the module (can now be used with "require")

@@ -1,6 +1,6 @@
 use crate::wrangling::*;
-use std::fs;
 use std::alloc::{alloc, Layout};
+use std::fs;
 
 pub fn read_csv(filename: String) -> DataTable {
     let csv = CSV::read_from_file(filename);
@@ -47,8 +47,13 @@ impl CSV {
             .split("\n")
             .into_iter()
             .map(|line| line.to_string().to_string())
-            .map(|line| line.split(",").into_iter().map(|elem| elem.to_string()).collect())
-                .collect();
+            .map(|line| {
+                line.split(",")
+                    .into_iter()
+                    .map(|elem| elem.to_string())
+                    .collect()
+            })
+            .collect();
 
         lines.pop();
 
@@ -59,10 +64,7 @@ impl CSV {
         let labels = lines.remove(0);
         let content = lines;
 
-        CSV {
-            content,
-            labels,
-        }
+        CSV { content, labels }
     }
 
     fn verify_content(lines: Vec<Vec<String>>) -> bool {
@@ -114,7 +116,6 @@ impl CSV {
         (self.content.len(), self.labels.len())
     }
 }
-
 
 #[cfg(test)]
 mod test {

@@ -1,11 +1,8 @@
 pub mod linalg;
-pub mod wrangling;
 
 use crate::linalg::array::Array;
 use crate::linalg::matrix::Matrix;
-use crate::wrangling::*;
-use crate::wrangling::reader::read_csv;
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::os::raw::c_char;
 
 // Array
@@ -148,7 +145,6 @@ pub extern "C" fn array_ones(len: i32) -> *mut Array {
     Array::to_raw(array)
 }
 
-
 // Matrix
 #[no_mangle]
 pub extern "C" fn matrix_zeros(rows: i32, cols: i32) -> *mut Matrix {
@@ -268,39 +264,4 @@ pub extern "C" fn matrix_mult(ptr1: *const Matrix, ptr2: *const Matrix) -> *mut 
     };
 
     Matrix::to_raw(mat1.mult(mat2))
-}
-
-#[no_mangle]
-pub extern "C" fn datatable_read_from_csv(c_str: *mut c_char) -> *const DataTable {
-    let slice = unsafe { CStr::from_ptr(c_str) };
-    let path_str = slice.to_str().unwrap();
-    let dt = read_csv(String::from(path_str.to_string()));
-
-    DataTable::to_raw(dt)
-}
-
-#[no_mangle]
-pub extern "C" fn datatable_to_string(ptr: *const DataTable) -> *const c_char {
-    let dt = unsafe {
-        assert!(!ptr.is_null());
-        &*ptr
-    };
-
-    let c_str = CString::new(dt.to_string().as_str()).unwrap();
-    let result = c_str.as_ptr();
-    std::mem::forget(c_str);
-    result
-}
-
-#[no_mangle]
-pub extern "C" fn datatable_get_labels(ptr: *const DataTable) -> *const c_char {
-    let dt = unsafe {
-        assert!(!ptr.is_null());
-        &*ptr
-    };
-
-    let c_str = CString::new(dt.get_labels_as_string().as_str()).unwrap();
-    let result = c_str.as_ptr();
-    std::mem::forget(c_str);
-    result
 }

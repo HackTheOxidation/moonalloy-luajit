@@ -49,7 +49,7 @@ local function test_Array()
   local infered = a * 2.0
   print("infered = ", infered)
 
-  print("Success!")
+  print("\nSuccess!\n\n")
 end
 
 local function test_Matrix()
@@ -92,23 +92,11 @@ local function test_Matrix()
   local infered = m * 2.0
   print("infered = ", infered)
 
-  print("Success!")
-end
-
-local function test_DataTable()
-  print("Testing DataTable class...")
-  local dt = DataTable("test.csv")
-  print("dt = ", dt)
-  print("dt = ", dt)
-
-  print("labels = ", dt:get_labels())
-
-  print("Success")
+  print("\nSuccess!\n\n")
 end
 
 
--- moonalloy.test_array()
--- moonalloy.test_matrix()
--- test_Array()
--- test_Matrix()
-test_DataTable()
+moonalloy.test_array()
+moonalloy.test_matrix()
+test_Array()
+test_Matrix()
