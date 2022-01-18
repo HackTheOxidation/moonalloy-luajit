@@ -1,5 +1,5 @@
-use std::fmt::*;
 use std::alloc::{alloc, Layout};
+use std::fmt::*;
 use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Clone)]
@@ -32,9 +32,7 @@ impl Array {
 
     pub fn sum(&self) -> f64 {
         let mut s: f64 = 0.0;
-        let v = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        let v = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
         for i in 0..self.len as usize {
             s += v[i];
@@ -49,9 +47,7 @@ impl Array {
             std::slice::from_raw_parts_mut(ptr, self.len as usize)
         };
 
-        let arr_slice = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        let arr_slice = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
         for i in 0..self.len as usize {
             result[i] = scal * arr_slice[i];
@@ -72,19 +68,18 @@ impl Array {
             std::slice::from_raw_parts_mut(ptr, self.len as usize)
         };
 
-        let arr1 = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        let arr1 = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
-        let arr2 = unsafe {
-            std::slice::from_raw_parts_mut(other.arr, other.len as usize)
-        };
+        let arr2 = unsafe { std::slice::from_raw_parts_mut(other.arr, other.len as usize) };
 
         for i in 0..self.len as usize {
             result[i] = arr1[i] + arr2[i];
         }
 
-        Array { len: result.len() as i32, arr: result.as_mut_ptr() }
+        Array {
+            len: result.len() as i32,
+            arr: result.as_mut_ptr(),
+        }
     }
 
     pub fn sub(&self, other: &Array) -> Array {
@@ -96,19 +91,18 @@ impl Array {
             std::slice::from_raw_parts_mut(ptr, self.len as usize)
         };
 
-        let arr1 = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        let arr1 = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
-        let arr2 = unsafe {
-            std::slice::from_raw_parts_mut(other.arr, other.len as usize)
-        };
+        let arr2 = unsafe { std::slice::from_raw_parts_mut(other.arr, other.len as usize) };
 
         for i in 0..self.len as usize {
             result[i] = arr1[i] - arr2[i];
         }
 
-        Array { len: result.len() as i32, arr: result.as_mut_ptr() }
+        Array {
+            len: result.len() as i32,
+            arr: result.as_mut_ptr(),
+        }
     }
 
     pub fn mult(&self, other: &Array) -> Array {
@@ -120,26 +114,23 @@ impl Array {
             std::slice::from_raw_parts_mut(ptr, self.len as usize)
         };
 
-        let arr1 = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        let arr1 = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
-        let arr2 = unsafe {
-            std::slice::from_raw_parts_mut(other.arr, other.len as usize)
-        };
+        let arr2 = unsafe { std::slice::from_raw_parts_mut(other.arr, other.len as usize) };
 
         for i in 0..self.len as usize {
             result[i] = arr1[i] * arr2[i];
         }
 
-        Array { len: result.len() as i32, arr: result.as_mut_ptr() }
+        Array {
+            len: result.len() as i32,
+            arr: result.as_mut_ptr(),
+        }
     }
 
     pub fn dotp(&self, other: &Array) -> f64 {
         let arr = self.mult(other);
-        let v = unsafe {
-           std::slice::from_raw_parts_mut(arr.arr, arr.len as usize)
-        };
+        let v = unsafe { std::slice::from_raw_parts_mut(arr.arr, arr.len as usize) };
         v.iter().sum()
     }
 
@@ -151,13 +142,9 @@ impl Array {
             std::slice::from_raw_parts_mut(ptr, len)
         };
 
-        let arr1 = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        let arr1 = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
-        let arr2 = unsafe {
-            std::slice::from_raw_parts_mut(other.arr, other.len as usize)
-        };
+        let arr2 = unsafe { std::slice::from_raw_parts_mut(other.arr, other.len as usize) };
 
         let mut i = 0;
         for elem in arr1.iter() {
@@ -170,13 +157,14 @@ impl Array {
             i += 1;
         }
 
-        Array { len: result.len() as i32, arr: result.as_mut_ptr() }
+        Array {
+            len: result.len() as i32,
+            arr: result.as_mut_ptr(),
+        }
     }
 
     pub fn to_string(&self) -> String {
-        let array_slice = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        let array_slice = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
         format!("Array: {:?}", array_slice)
     }
@@ -211,19 +199,21 @@ impl Array {
     }
 
     pub fn get(&self, index: usize) -> f64 {
-        assert!(index < self.len as usize, "ERROR - Array get: Index out of bounds.");
-        let slice = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        assert!(
+            index < self.len as usize,
+            "ERROR - Array get: Index out of bounds."
+        );
+        let slice = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
         slice[index]
     }
 
     pub fn set(&self, val: f64, index: usize) {
-        assert!(index < self.len as usize, "ERROR - Array get: Index out of bounds.");
-        let slice = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        assert!(
+            index < self.len as usize,
+            "ERROR - Array get: Index out of bounds."
+        );
+        let slice = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
         slice[index] = val;
     }
@@ -241,13 +231,9 @@ impl PartialEq for Array {
             return false;
         }
 
-        let slice1 = unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        };
+        let slice1 = unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) };
 
-        let slice2 = unsafe {
-            std::slice::from_raw_parts_mut(other.arr, other.len as usize)
-        };
+        let slice2 = unsafe { std::slice::from_raw_parts_mut(other.arr, other.len as usize) };
 
         for i in 0..self.len as usize {
             if slice1[i] != slice2[i] {
@@ -262,17 +248,13 @@ impl PartialEq for Array {
 impl Deref for Array {
     type Target = [f64];
     fn deref(&self) -> &[f64] {
-        unsafe {
-            std::slice::from_raw_parts(self.arr, self.len as usize)
-        }
+        unsafe { std::slice::from_raw_parts(self.arr, self.len as usize) }
     }
 }
 
 impl DerefMut for Array {
     fn deref_mut(&mut self) -> &mut [f64] {
-        unsafe {
-            std::slice::from_raw_parts_mut(self.arr, self.len as usize)
-        }
+        unsafe { std::slice::from_raw_parts_mut(self.arr, self.len as usize) }
     }
 }
 
@@ -389,5 +371,4 @@ mod test {
         assert_eq!(*it.next().unwrap(), 2.0 as f64);
         assert_eq!(*it.next().unwrap(), 3.0 as f64);
     }
-
 }
