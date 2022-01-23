@@ -9,7 +9,7 @@ ffi.cdef[[
 
 // Array
 typedef struct {
-  int len;
+  size_t len;
   double *arr;
 } array_t;
 

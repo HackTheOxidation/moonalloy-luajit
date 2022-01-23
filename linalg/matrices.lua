@@ -11,8 +11,8 @@ ffi.cdef[[
 
 // Matrix
 typedef struct {
-  int rows;
-  int cols;
+  size_t rows;
+  size_t cols;
   array_t* arrays;
 } matrix_t;
 

@@ -1,6 +1,5 @@
 local moonalloy = require("../moonalloy")
 
-
 local function test_Array()
   local arg = {1.0, 2.0, 3.0}
 
