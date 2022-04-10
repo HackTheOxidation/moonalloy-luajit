@@ -8,7 +8,7 @@ require('linalg/matrices')
 local ffi = require("ffi")
 
 -- Load the shared library from '.so'-file
-local rust_lib = ffi.load("./moonalloy/target/debug/libmoonalloy.so")
+local rust_lib = ffi.load("/usr/local/lib/libmoonalloy.so")
 
 -- Test for the entire module
 function moonalloy.test_array()
